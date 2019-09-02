@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -28,9 +29,21 @@ public class NetworkScreen extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_network_screen, container, false);
         batteryTxt = (TextView) rootView.findViewById(R.id.batteryLevel);
         getActivity().registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
         int rssi = ((MainActivity) getActivity()).getResult();
         SSIDTxt = (TextView) rootView.findViewById(R.id.RSSILevel);
         SSIDTxt.setText("RSSI Level : " + String.valueOf(rssi));
+
+        Button button = (Button) rootView.findViewById(R.id.refresh);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                int rssi = ((MainActivity) getActivity()).getResult();
+                System.out.println(rssi);
+            }
+        });
+
+
         return rootView;
     }
 
