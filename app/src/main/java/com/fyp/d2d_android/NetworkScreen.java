@@ -26,7 +26,7 @@ public class NetworkScreen extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_network_screen, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_network_screen, container, false);
         batteryTxt = (TextView) rootView.findViewById(R.id.batteryLevel);
         getActivity().registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
@@ -34,15 +34,13 @@ public class NetworkScreen extends Fragment {
         SSIDTxt = (TextView) rootView.findViewById(R.id.RSSILevel);
         SSIDTxt.setText("RSSI Level : " + String.valueOf(rssi));
 
-        Button button = (Button) rootView.findViewById(R.id.refresh);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                int rssi = ((MainActivity) getActivity()).getResult();
-                System.out.println(rssi);
+        ((MainActivity) getActivity()).passVal(new FragmentCommunicator() {
+            @Override
+            public void changeText(int textVal) {
+                TextView frv = (TextView) rootView.findViewById(R.id.RSSILevel);
+                frv.setText("RSSI Level : " + String.valueOf(textVal));
             }
         });
-
 
         return rootView;
     }

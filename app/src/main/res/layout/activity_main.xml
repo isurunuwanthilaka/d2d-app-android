@@ -31,7 +31,20 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/tab_layout"/>
+        android:layout_height="525dp"
+        android:layout_below="@id/tab_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="97dp" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="165dp"
+        android:layout_marginBottom="26dp"
+        android:text="refresh" />
 
 </RelativeLayout>

@@ -13,11 +13,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    FragmentCommunicator fragmentCommunicator;
+
+    //interface for updating the textview in the networkscreen fragment
+    public void passVal(FragmentCommunicator fragmentCommunicator) {
+        this.fragmentCommunicator = fragmentCommunicator;
+
+    }
+
+    //getting the rssi value from the connected device
     public int getResult() {
         int dbm = 0;
 
@@ -53,23 +64,15 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Profile"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
+        //rssi button update
+        Button button = (Button) findViewById(R.id.button1);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                int rssi = getResult();
+                fragmentCommunicator.changeText(rssi);
+            }
+        });
 
-//        TextView rssiText = (TextView) findViewById(R.id.RSSILevel);
-//        rssiText.setText(info);
-
-//        ScanResult result0 = wifi.getScanResults().get(2);
-//        String ssid0 = result0.SSID;
-//        int rssi0 = result0.level;
-//        String rssiString0 = String.valueOf(rssi0);
-//
-//        System.out.println(ssid0+" has "+rssiString0);
-//
-//        ScanResult result1 = wifi.getScanResults().get(1);
-//        String ssid1 = result1.SSID;
-//        int rssi1 = result1.level;
-//        String rssiString1 = String.valueOf(rssi1);
-
-        //System.out.println(ssid1+" has "+rssiString1);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         final PagerAdapter adapter = new PagerAdapter
