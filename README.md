@@ -1,1 +1,1 @@
-# d2d-app-android
+# D2D Android Application
