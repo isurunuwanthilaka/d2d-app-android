@@ -31,12 +31,14 @@ public class FileScreen extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
         View view = inflater.inflate(R.layout.fragment_file_screen, container, false);
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
         ListDir(root);
         ListView listView = (ListView) view.findViewById(R.id.listView);
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, fileList);
         listView.setAdapter(listViewAdapter);
+
         return view;
     }
 
