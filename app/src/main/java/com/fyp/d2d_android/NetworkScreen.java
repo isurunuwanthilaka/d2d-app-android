@@ -5,13 +5,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -22,13 +26,27 @@ public class NetworkScreen extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_network_screen, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_network_screen, container, false);
         batteryTxt = (TextView) rootView.findViewById(R.id.batteryLevel);
         getActivity().registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
+        int rssi = ((MainActivity) getActivity()).getResult();
+        SSIDTxt = (TextView) rootView.findViewById(R.id.RSSILevel);
+        SSIDTxt.setText("RSSI Level : " + String.valueOf(rssi));
+
+        ((MainActivity) getActivity()).passVal(new FragmentCommunicator() {
+            @Override
+            public void changeText(int textVal) {
+                TextView frv = (TextView) rootView.findViewById(R.id.RSSILevel);
+                frv.setText("RSSI Level : " + String.valueOf(textVal));
+            }
+        });
+
         return rootView;
     }
 
     private TextView batteryTxt;
+    private TextView SSIDTxt;
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context ctxt, Intent intent) {
@@ -37,7 +55,15 @@ public class NetworkScreen extends Fragment {
         }
     };
 
+    @Override
+    public void onResume() {
+        Log.e("DEBUG", "onResume of LoginFragment");
+        super.onResume();
+    }
+
     public NetworkScreen() {
+
+
     }
 
 }
