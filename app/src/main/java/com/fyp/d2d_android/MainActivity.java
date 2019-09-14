@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
             IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = registerReceiver(null, ifilter);
 
+
             TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
             tabLayout.addTab(tabLayout.newTab().setText("Files"));
             tabLayout.addTab(tabLayout.newTab().setText("Network"));
@@ -116,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
                     fragmentCommunicator.changeText(rssi);
                 }
             });
+
+            //rssi
+            this.registerReceiver(null,
+                    new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+            this.registerReceiver(null,
+                    new IntentFilter(WifiManager.RSSI_CHANGED_ACTION));
+            //rssi end
 
 
             final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
