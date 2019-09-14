@@ -45,18 +45,6 @@ public class NetworkScreen extends Fragment {
 
         getActivity().registerReceiver(this.myWifiReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         getActivity().registerReceiver(this.myRssiChangeReceiver, new IntentFilter(WifiManager.RSSI_CHANGED_ACTION));
-        //
-        int rssi = ((MainActivity) getActivity()).getResult();
-        SSIDTxt = (TextView) rootView.findViewById(R.id.rssi);
-        SSIDTxt.setText("RSSI Level : " + String.valueOf(rssi));
-
-        ((MainActivity) getActivity()).passVal(new FragmentCommunicator() {
-            @Override
-            public void changeText(int textVal) {
-                TextView frv = (TextView) rootView.findViewById(R.id.rssi);
-                frv.setText("RSSI Level : " + String.valueOf(textVal));
-            }
-        });
 
         return rootView;
     }
@@ -87,17 +75,6 @@ public class NetworkScreen extends Fragment {
         }
     };
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
     //rssi receivers
 
     private BroadcastReceiver myRssiChangeReceiver
@@ -105,10 +82,30 @@ public class NetworkScreen extends Fragment {
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            // TODO Auto-generated method stub
-            int newRssi = arg1.getIntExtra(WifiManager.EXTRA_NEW_RSSI, 0);
+            WifiManager wifiMan=(WifiManager)getActivity().getSystemService(Context.WIFI_SERVICE);
+            wifiMan.startScan();
+            int newRssi = wifiMan.getConnectionInfo().getRssi();
             textRssi.setText("RSSI Level : "+String.valueOf(newRssi));
         }};
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Note: Not using RSSI_CHANGED_ACTION because it never calls me back.
+        IntentFilter rssiFilter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        getActivity().registerReceiver(myRssiChangeReceiver, rssiFilter);
+
+        WifiManager wifiMan=(WifiManager)getActivity().getSystemService(Context.WIFI_SERVICE);
+        wifiMan.startScan();
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(myRssiChangeReceiver);
+
+    }
 
     private BroadcastReceiver myWifiReceiver
             = new BroadcastReceiver(){
