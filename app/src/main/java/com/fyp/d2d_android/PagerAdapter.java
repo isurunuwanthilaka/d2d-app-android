@@ -23,7 +23,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 NetworkScreen tab2 = new NetworkScreen();
                 return tab2;
             case 2:
-                ProfileScreen tab3 = new ProfileScreen();
+                EditUserActivity tab3 = new EditUserActivity();
                 return tab3;
             default:
                 return null;
