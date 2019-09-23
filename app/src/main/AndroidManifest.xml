@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.fyp.d2d_android">
+
+    <uses-permission
+        android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission
         android:required="true"
         android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -47,6 +52,11 @@
         <activity
             android:name=".EditUserActivity"
             android:label="User Profile"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".WiFiDirect"
+            android:label="WiFi Settings"
             android:theme="@style/AppTheme" />
 
     </application>
