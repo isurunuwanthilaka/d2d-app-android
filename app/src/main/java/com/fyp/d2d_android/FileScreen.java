@@ -48,10 +48,14 @@ public class FileScreen extends Fragment {
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
         ListDir(root);
         ListView listView = (ListView) view.findViewById(R.id.listView);
+        // Set selection mode to multiple choices
         listView.setChoiceMode(2);
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_checked, fileList);
         listView.setAdapter(listViewAdapter);
-
+        // Set all items checked
+        for (int i=0;i<fileList.size();i++){
+            listView.setItemChecked(i,true);
+        }
         return view;
     }
 
