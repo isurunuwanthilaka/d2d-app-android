@@ -20,6 +20,7 @@ public class FileScreen extends Fragment {
     private List<String> fileList = new ArrayList<String>();
     void ListDir(File f) {
         boolean success = false;
+        // create folder if not exists
         if (!f.exists()){
             success=f.mkdir();
         }
@@ -30,10 +31,13 @@ public class FileScreen extends Fragment {
             Toast toast=Toast.makeText(getActivity(),"Something went wrong when creating the folder",Toast.LENGTH_LONG);
             toast.show();
         }
+        // fill the list from folder content
         File[] files = f.listFiles();
         fileList.clear();
         for (File file : files) {
-            fileList.add(file.getPath());
+            String[] nameArr =file.getPath().split("/");
+            String fileName=nameArr[nameArr.length-1];
+            fileList.add(fileName);
         }
     }
 
