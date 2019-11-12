@@ -9,14 +9,33 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 
@@ -46,6 +65,17 @@ public class NetworkScreen extends Fragment {
         getActivity().registerReceiver(this.myWifiReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         getActivity().registerReceiver(this.myRssiChangeReceiver, new IntentFilter(WifiManager.RSSI_CHANGED_ACTION));
 
+        final Handler handler = new Handler();
+
+        final Runnable r = new Runnable() {
+            public void run() {
+                String[] myTaskParams = { "1528", String.valueOf(textSpeed.getText()), String.valueOf(textRssi.getText()),String.valueOf(batteryTxt.getText()) };
+                new SendPostRequest().execute(myTaskParams);
+                handler.postDelayed(this, 60000);
+            }
+        };
+        handler.postDelayed(r, 60000);
+
         return rootView;
     }
 
@@ -61,10 +91,6 @@ public class NetworkScreen extends Fragment {
     private TextView textSpeed;
     private TextView textRssi;
 
-
-    //rssiend
-
-
     //battery broadcast receiver
     private TextView batteryTxt;
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
@@ -76,7 +102,6 @@ public class NetworkScreen extends Fragment {
     };
 
     //rssi receivers
-
     private BroadcastReceiver myRssiChangeReceiver
             = new BroadcastReceiver(){
 
@@ -166,5 +191,99 @@ public class NetworkScreen extends Fragment {
 
     }
 
+    public String getPostDataString(JSONObject params) throws Exception {
+
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        Iterator<String> itr = params.keys();
+
+        while (itr.hasNext()) {
+
+            String key = itr.next();
+            Object value = params.get(key);
+
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(key, "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(value.toString(), "UTF-8"));
+
+        }
+        return result.toString();
+    }
+
+    public class SendPostRequest extends AsyncTask<String, Void, String> {
+
+        protected void onPreExecute() {
+        }
+
+        protected String doInBackground(String... arg) {
+
+            try {
+
+                URL url = new URL("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connData"); // here is your URL path
+
+                JSONObject postDataParams = new JSONObject();
+                postDataParams.put("deviceID", arg[0]);
+                postDataParams.put("linkSpeed", arg[1]);
+                postDataParams.put("connRSSI", arg[2]);
+                postDataParams.put("batteryLevel", arg[3]);
+                Log.e("params", postDataParams.toString());
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(5000 /* milliseconds */);
+                conn.setConnectTimeout(5000 /* milliseconds */);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, StandardCharsets.UTF_8));
+                writer.write(getPostDataString(postDataParams));
+
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+
+                if (responseCode == HttpsURLConnection.HTTP_OK) {
+
+                    BufferedReader in = new BufferedReader(new
+                            InputStreamReader(
+                            conn.getInputStream()));
+
+                    StringBuffer sb = new StringBuffer();
+                    String line = "";
+
+                    while ((line = in.readLine()) != null) {
+
+                        sb.append(line);
+                        break;
+                    }
+
+                    in.close();
+                    return sb.toString();
+
+                } else {
+                    return "false : " + responseCode;
+                }
+            } catch (Exception e) {
+                return "Exception: " + e.getMessage();
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getActivity().getApplicationContext(), result,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
 
 }
