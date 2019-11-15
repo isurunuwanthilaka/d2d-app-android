@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
             TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
             tabLayout.addTab(tabLayout.newTab().setText("Files"));
+            tabLayout.addTab(tabLayout.newTab().setText("Cloud"));
             tabLayout.addTab(tabLayout.newTab().setText("Network"));
             tabLayout.addTab(tabLayout.newTab().setText("Profile"));
             tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);

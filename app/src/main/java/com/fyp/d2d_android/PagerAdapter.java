@@ -20,11 +20,14 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 FileScreen tab1 = new FileScreen();
                 return tab1;
             case 1:
-                NetworkScreen tab2 = new NetworkScreen();
+                CloudFileScreen tab2 = new CloudFileScreen();
                 return tab2;
             case 2:
-                EditUserActivity tab3 = new EditUserActivity();
+                NetworkScreen tab3 = new NetworkScreen();
                 return tab3;
+            case 3:
+                EditUserActivity tab4 = new EditUserActivity();
+                return tab4;
             default:
                 return null;
         }
