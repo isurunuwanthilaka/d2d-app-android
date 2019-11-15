@@ -1,5 +1,7 @@
 package com.fyp.d2d_android;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -67,9 +69,16 @@ public class NetworkScreen extends Fragment {
 
         final Handler handler = new Handler();
 
+        FirebaseAuth mAuth;
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        final String userUID =  currentUser.getUid();
+
+
         final Runnable r = new Runnable() {
             public void run() {
-                String[] myTaskParams = { "1528", String.valueOf(textSpeed.getText()), String.valueOf(textRssi.getText()),String.valueOf(batteryTxt.getText()) };
+
+                String[] myTaskParams = { userUID, String.valueOf(Integer.parseInt(textSpeed.getText().toString().replaceAll("\\D", ""))), String.valueOf(Integer.parseInt(textRssi.getText().toString().replaceAll("\\D", ""))),String.valueOf(Integer.parseInt(batteryTxt.getText().toString().replaceAll("\\D", ""))) };
                 new SendPostRequest().execute(myTaskParams);
                 handler.postDelayed(this, 60000);
             }
@@ -281,8 +290,8 @@ public class NetworkScreen extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getActivity().getApplicationContext(), result,
-                    Toast.LENGTH_LONG).show();
+//            Toast.makeText(getActivity().getApplicationContext(), result,
+//                    Toast.LENGTH_LONG).show();
         }
     }
 
