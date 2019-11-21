@@ -58,6 +58,16 @@
             android:name=".WiFiDirect"
             android:label="WiFi Settings"
             android:theme="@style/AppTheme" />
+        <!-- [START firebase_service] -->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!-- [END firebase_service] -->
+
 
     </application>
 

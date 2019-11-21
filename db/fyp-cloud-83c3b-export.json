@@ -1,4 +1,17 @@
 {
+  "News": {
+    "newsid1": {
+      "description": "Test description",
+      "priority": 1,
+      "title": "Test tiltle"
+    },
+    "newsid2": {
+      "description": "Test description msg 2",
+      "priority": 1,
+      "title": "Test tiltle 2"
+    }
+  },
+
   "User" : {
     "3uoH6tcrDbbDOYt7RoDY5cM3Bq43" : {
       "age" : 0,
