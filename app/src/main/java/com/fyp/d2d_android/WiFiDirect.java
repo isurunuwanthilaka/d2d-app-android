@@ -268,7 +268,7 @@ public class WiFiDirect extends AppCompatActivity {
                 f.createNewFile();
                 InputStream inputstream = socket.getInputStream();
                 copyFile(inputstream, new FileOutputStream(f));
-//                serverSocket.close();
+                serverSocket.close();
 //                sendReceive=new SendReceive(socket);
 //                sendReceive.start();
             } catch (IOException e) {
