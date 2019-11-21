@@ -14,6 +14,8 @@ import android.os.Message;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
+
+import android.os.StrictMode;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -71,6 +73,9 @@ public class WiFiDirect extends AppCompatActivity {
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         setContentView(R.layout.activity_wifidirect);
+        // TODO: Change thread policy default
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         initialWork();
         exqListener();
     }
