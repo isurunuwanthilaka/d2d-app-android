@@ -73,7 +73,7 @@ public class WiFiDirect extends AppCompatActivity {
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         setContentView(R.layout.activity_wifidirect);
-        // TODO: Change thread policy default
+        // TODO: Change thread policy to default
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         initialWork();
@@ -324,5 +324,22 @@ public class WiFiDirect extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+        byte buf[] = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                out.write(buf, 0, len);
+
+            }
+            out.close();
+            inputStream.close();
+        } catch (IOException e) {
+//            Log.d("inside copyFile", e.toString());
+            return false;
+        }
+        return true;
     }
 }
