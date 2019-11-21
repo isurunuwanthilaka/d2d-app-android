@@ -12,4 +12,9 @@ We are focusing on following features
 
 ## Authors
 
+Isuru Nuwnathilaka
+Lochana Chathura
+
 ## How to contribute?
+
+Submit a pull request or raise 3 helpful issues to join D2DAPP Team!
