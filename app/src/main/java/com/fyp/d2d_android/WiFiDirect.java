@@ -225,7 +225,7 @@ public class WiFiDirect extends AppCompatActivity {
             if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
             {
                 connectionStatus.setText("Host");
-                serverClass=new ServerClass();
+                serverClass=new ServerClass(getApplicationContext());
                 serverClass.start();
             }else if(wifiP2pInfo.groupFormed)
             {
@@ -252,23 +252,18 @@ public class WiFiDirect extends AppCompatActivity {
         Socket socket;
         ServerSocket serverSocket;
 
+        Context context;
+        public ServerClass(Context context){
+            this.context=context;
+        }
         @Override
         public void run() {
             try {
                 serverSocket=new ServerSocket(8888);
                 socket=serverSocket.accept();
-                final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
-                        + "/" + System.currentTimeMillis()
-                        + ".jpg");
-
-                File dirs = new File(f.getParent());
-                if (!dirs.exists())
-                    dirs.mkdirs();
-                dirs.mkdirs();
-                f.createNewFile();
-                InputStream inputstream = socket.getInputStream();
-                copyFile(inputstream, new FileOutputStream(f));
+                receiveFile(socket);
                 serverSocket.close();
+//                Toast.makeText(context.getApplicationContext(),"File transfer done",Toast.LENGTH_LONG).show();
 //                sendReceive=new SendReceive(socket);
 //                sendReceive.start();
             } catch (IOException e) {
@@ -326,9 +321,6 @@ public class WiFiDirect extends AppCompatActivity {
         Socket socket;
         String hostAdd;
 
-        int len;
-        byte buf[]  = new byte[1024];
-
         Context context;
 
         public  ClientClass(InetAddress hostAddress, Context context)
@@ -342,18 +334,8 @@ public class WiFiDirect extends AppCompatActivity {
         public void run() {
             try {
                 socket.connect(new InetSocketAddress(hostAdd,8888),500);
-                OutputStream outputStream = socket.getOutputStream();
-                ContentResolver cr = context.getContentResolver();
-                InputStream inputStream = null;
-                inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/D2D/Picture1.jpg")));
-                if (inputStream == null) {
-                    throw new FileNotFoundException("can't open input stream: "+"Environment.getExternalStorageDirectory()+\"/D2D/Picture1.jpg\"" );
-                }
-                while ((len = inputStream.read(buf)) != -1) {
-                    outputStream.write(buf, 0, len);
-                }
-                outputStream.close();
-                inputStream.close();
+                sendFile(socket,context);
+//                Toast.makeText(getApplicationContext(),"File transfer done",Toast.LENGTH_LONG).show();
 //                sendReceive=new SendReceive(socket);
 //                sendReceive.start();
             } catch (IOException e) {
@@ -377,5 +359,48 @@ public class WiFiDirect extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    public static boolean sendFile(Socket socket, Context context){
+        int len;
+        byte buf[]  = new byte[1024];
+
+        try {
+            OutputStream outputStream = socket.getOutputStream();
+            ContentResolver cr = context.getContentResolver();
+            InputStream inputStream = null;
+            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/D2D/hey.pdf")));
+            if (inputStream == null) {
+                throw new FileNotFoundException("can't open input stream: "+"Environment.getExternalStorageDirectory()+\"/D2D/Picture1.jpg\"" );
+            }
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.close();
+            inputStream.close();
+        }catch (IOException e){
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean receiveFile(Socket socket){
+        try {
+            final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
+                    + "/" + System.currentTimeMillis()
+                    + ".pdf");
+
+            File dirs = new File(f.getParent());
+            if (!dirs.exists())
+                dirs.mkdirs();
+            dirs.mkdirs();
+            f.createNewFile();
+            InputStream inputstream = socket.getInputStream();
+            copyFile(inputstream, new FileOutputStream(f));
+        }catch (IOException e){
+            return false;
+        }
+        return true;
+
     }
 }
