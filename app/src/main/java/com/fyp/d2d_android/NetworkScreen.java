@@ -12,12 +12,12 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -79,13 +79,16 @@ public class NetworkScreen extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         final String userUID =  currentUser.getUid();
+        // TODO : Get the MAC using Ipv6 and sent to the firebase for pairing devices
+        final String userSSID = Settings.Secure.getString(getContext().getContentResolver(), "bluetooth_name");
+        ;
 
 
         final Handler handler = new Handler();
         final Runnable r = new Runnable() {
             public void run() {
 
-                String[] myTaskParams = { userUID, String.valueOf(Integer.parseInt(textSpeed.getText().toString().replaceAll("\\D", ""))), String.valueOf(Integer.parseInt(textRssi.getText().toString().replaceAll("\\D", ""))),String.valueOf(Integer.parseInt(batteryTxt.getText().toString().replaceAll("\\D", ""))) };
+                String[] myTaskParams = {userUID, String.valueOf(Integer.parseInt(textSpeed.getText().toString().replaceAll("\\D", ""))), String.valueOf(Integer.parseInt(textRssi.getText().toString().replaceAll("\\D", ""))), String.valueOf(Integer.parseInt(batteryTxt.getText().toString().replaceAll("\\D", ""))), userSSID};
                 new SendPostRequest().execute(myTaskParams);
                 handler.postDelayed(this, 60000);
             }
@@ -280,6 +283,7 @@ public class NetworkScreen extends Fragment {
                 postDataParams.put("linkSpeed", arg[1]);
                 postDataParams.put("connRSSI", arg[2]);
                 postDataParams.put("batteryLevel", arg[3]);
+                postDataParams.put("deviceSSIDName", arg[4]);
                 Log.e("params", postDataParams.toString());
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
