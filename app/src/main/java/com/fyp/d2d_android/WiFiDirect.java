@@ -149,10 +149,10 @@ public class WiFiDirect extends AppCompatActivity {
         });
 
         //automate WiFi enabling and discovery
-//        if(!wifiManager.isWifiEnabled()){
-//            btnOnOff.callOnClick();
-//        }
-//        btnDiscover.callOnClick();
+        if(!wifiManager.isWifiEnabled()){
+            btnOnOff.callOnClick();
+        }
+        btnDiscover.callOnClick();
     }
 
     private void initialWork() {
