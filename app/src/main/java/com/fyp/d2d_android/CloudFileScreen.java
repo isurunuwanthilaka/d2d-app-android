@@ -28,7 +28,6 @@ public class CloudFileScreen extends Fragment {
     FirebaseAuth mAuth;
     DatabaseReference ref;
 
-    //TODO : Remove root folder path from the screen
 
     void getFilesFromCloud() {
         //authenticating firebase database
