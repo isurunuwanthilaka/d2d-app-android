@@ -3,12 +3,21 @@
     "newsid1": {
       "description": "Test description",
       "priority": 1,
-      "title": "Test tiltle"
+      "title": "Test tiltle",
+      "device1ID": "cymNEiaplQOfcIOJZtFc598YaMh2",
+      "device1SSID": "Isuru Nuwanthilaka",
+      "device2ID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+      "device2SSID": "Isuru Nuwanthilaka",
+      "fileName": "file001"
     },
     "newsid2": {
-      "description": "Test description msg 2",
-      "priority": 1,
-      "title": "Test tiltle 2"
+      "description": "Test description 2",
+      "priority": 2,
+      "title": "Test tiltle 2",
+      "device1ID": "cymNEiaplQOfcIOJZtFc598YaMh2",
+      "device1SSID": "Isuru Nuwanthilaka",
+      "device2ID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+      "device2SSID": "Isuru Madhuranga"
     }
   },
 
