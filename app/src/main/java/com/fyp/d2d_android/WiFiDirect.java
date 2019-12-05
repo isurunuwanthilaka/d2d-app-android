@@ -136,21 +136,7 @@ public class WiFiDirect extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final WifiP2pDevice device=deviceArray[i];
-                WifiP2pConfig config=new WifiP2pConfig();
-                config.deviceAddress=device.deviceAddress;
-
-                mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(getApplicationContext(),"Connected to "+device.deviceName,Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(int i) {
-                        Toast.makeText(getApplicationContext(),"Not Connected",Toast.LENGTH_SHORT).show();
-                    }
-                });
+                connectTo(deviceArray[i]);
             }
         });
 
@@ -161,6 +147,12 @@ public class WiFiDirect extends AppCompatActivity {
                 sendReceive.write(msg.getBytes());
             }
         });
+
+        //automate WiFi enabling and discovery
+//        if(!wifiManager.isWifiEnabled()){
+//            btnOnOff.callOnClick();
+//        }
+//        btnDiscover.callOnClick();
     }
 
     private void initialWork() {
@@ -403,4 +395,33 @@ public class WiFiDirect extends AppCompatActivity {
         return true;
 
     }
+
+    public void connectTo(WifiP2pDevice d){
+        final WifiP2pDevice device=d;
+        WifiP2pConfig config=new WifiP2pConfig();
+        config.deviceAddress=device.deviceAddress;
+
+        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(getApplicationContext(),"Connected to "+device.deviceName,Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int i) {
+                Toast.makeText(getApplicationContext(),"Not Connected",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static WifiP2pDevice fetchSecondDevice(WifiP2pDevice[] arr,String name) throws IOException{
+
+        for (WifiP2pDevice d:arr){
+            if(d.deviceName.equalsIgnoreCase(name)){
+                return d;
+            }
+        }
+        throw new IOException("Device not found");
+    }
+
 }
