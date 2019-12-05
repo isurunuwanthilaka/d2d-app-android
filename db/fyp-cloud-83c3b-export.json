@@ -1,0 +1,63 @@
+{
+  "News": {
+    "newsid1": {
+      "description": "Test description",
+      "priority": 1,
+      "title": "Test tiltle"
+    },
+    "newsid2": {
+      "description": "Test description msg 2",
+      "priority": 1,
+      "title": "Test tiltle 2"
+    }
+  },
+
+  "User" : {
+    "3uoH6tcrDbbDOYt7RoDY5cM3Bq43" : {
+      "age" : 0,
+      "firstName" : "default",
+      "lastName" : "default"
+    },
+    "cymNEiaplQOfcIOJZtFc598YaMh2" : {
+      "firstName" : "Isuru",
+      "lastName" : "Nuwanthilaka"
+    },
+    "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83" : {
+      "age" : 0,
+      "firstName" : "Isuru",
+      "lastName" : "Nuwanthilaka"
+    },
+    "om8d5AxWuSVuXvsrVaLKPywfica2" : {
+      "age" : 0,
+      "firstName" : "default",
+      "lastName" : "default"
+    },
+    "u8214yGvEjftxdzzYlPkxsCuzKv1" : {
+      "age" : 0,
+      "firstName" : "default",
+      "lastName" : "default"
+    },
+    "vPKI6XhM5sasELVh1wmLxYhWaSI2" : {
+      "age" : 0,
+      "firstName" : "default",
+      "lastName" : "default"
+    }
+  },
+  "deviceDataStore" : {
+    "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83" : {
+      "batteryLevel" : "81",
+      "connRSSI" : "67",
+      "deviceID" : "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+      "linkSpeed" : "72"
+    }
+  },
+  "fileStoreDetails": {
+    "file001": {
+      "fileName": "fileOne",
+      "availableDeviceIDs": ["nmRvoJeiC6ZvzRQ1LRh7KqBzQj83","cymNEiaplQOfcIOJZtFc598YaMh2"],
+      "URL": "",
+      "size": "23 MB",
+      "format": "JPEG"
+    }
+  }
+}

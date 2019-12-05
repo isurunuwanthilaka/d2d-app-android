@@ -3,4 +3,9 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="msg_subscribed">Successfully subscribed</string>
+    <string name="msg_subscribe_failed"> Failed Subscription</string>
+    <string name="default_notification_channel_id"> default_notification_channel_id</string>
+    <string name="fcm_message">fcm_message</string>
+    <string name="msg_token_fmt">token_message</string>
 </resources>
