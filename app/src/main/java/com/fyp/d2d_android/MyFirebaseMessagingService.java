@@ -50,14 +50,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mAuth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = mAuth.getCurrentUser();
             Intent i = new Intent(this, WiFiDirect.class);
+            i.putExtra("fileName", dataMap.get("fileName"));
 
             if (dataMap.get("device1ID").equals(currentUser.getUid())) {
-                i.putExtra("pairingSSID", dataMap.get("device1SSID"));
-                this.startActivity(i);
-                Log.d(TAG,"Device One matched "+dataMap.get("device1SSID"));
-            }else if(dataMap.get("device2ID").equals(currentUser.getUid())){
                 i.putExtra("pairingSSID", dataMap.get("device2SSID"));
-                Log.d(TAG,"Device Two matched "+dataMap.get("device2SSID"));
+                this.startActivity(i);
+                Log.d(TAG,"Device One matched "+dataMap.get("device2SSID"));
+            }else if(dataMap.get("device2ID").equals(currentUser.getUid())){
+                i.putExtra("pairingSSID", dataMap.get("device1SSID"));
+                Log.d(TAG,"Device Two matched "+dataMap.get("device1SSID"));
                 this.startActivity(i);
             }
         }
@@ -66,7 +67,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
-
     }
 
     @Override

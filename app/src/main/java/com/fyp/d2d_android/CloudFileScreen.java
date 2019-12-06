@@ -5,11 +5,22 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,27 +29,31 @@ import java.util.List;
 public class CloudFileScreen extends Fragment {
 
     private List<String> fileList = new ArrayList<String>();
-    void ListDir(File f) {
-        boolean success = false;
-        // create folder if not exists
-        if (!f.exists()){
-            success=f.mkdir();
-        }
-        if (success){
-            Toast toast=Toast.makeText(getActivity(),"New folder created",Toast.LENGTH_LONG);
-            toast.show();
-        }else if(!f.exists()){
-            Toast toast=Toast.makeText(getActivity(),"Something went wrong when creating the folder",Toast.LENGTH_LONG);
-            toast.show();
-        }
-        // fill the list from folder content
-        File[] files = f.listFiles();
-        fileList.clear();
-        for (File file : files) {
-            String[] nameArr =file.getPath().split("/");
-            String fileName=nameArr[nameArr.length-1];
-            fileList.add(fileName);
-        }
+    FirebaseAuth mAuth;
+    DatabaseReference ref;
+
+
+    void getFilesFromCloud() {
+        //authenticating firebase database
+        mAuth = FirebaseAuth.getInstance();
+        ref = FirebaseDatabase.getInstance().getReference("/fileStoreDetails");
+
+        //adding fields to the fileList
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                fileList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String filename = snapshot.getKey();
+                    fileList.add(filename);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
     }
 
     @Override
@@ -46,8 +61,8 @@ public class CloudFileScreen extends Fragment {
         System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator +"D2D");
         View view = inflater.inflate(R.layout.fragment_file_screen, container, false);
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
-        ListDir(root);
-        ListView listView = (ListView) view.findViewById(R.id.listView);
+        getFilesFromCloud();
+        ListView listView = view.findViewById(R.id.listView);
         // Set selection mode to multiple choices
         listView.setChoiceMode(2);
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_checked, fileList);
@@ -56,7 +71,35 @@ public class CloudFileScreen extends Fragment {
         for (int i=0;i<fileList.size();i++){
             listView.setItemChecked(i,true);
         }
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View v, int position,
+                                    long arg3) {
+                String name = arg0.getItemAtPosition(position).toString();
+                Toast.makeText(getContext().getApplicationContext(), "Requesting " + name + ". Wait until pairing.", Toast.LENGTH_LONG).show();
+                requestFileFromCloud(name);
+            }
+        });
         return view;
     }
 
+    public void requestFileFromCloud(String name) {
+        // sending post request to the db to get paired
+        FirebaseAuth mAuth;
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        final String userUID = currentUser.getUid();
+
+        DataHolder dataHolder = new DataHolder();
+        dataHolder.setUrl("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connFileRequest");
+        JSONObject postDataParams = new JSONObject();
+        try {
+            postDataParams.put("deviceID", userUID);
+            postDataParams.put("fileList", name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        dataHolder.setJson(postDataParams);
+        new SendPostRequest().execute(dataHolder);
+    }
 }
