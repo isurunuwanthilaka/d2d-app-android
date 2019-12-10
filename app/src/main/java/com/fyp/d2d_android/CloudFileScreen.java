@@ -95,7 +95,7 @@ public class CloudFileScreen extends Fragment {
         JSONObject postDataParams = new JSONObject();
         try {
             postDataParams.put("deviceID", userUID);
-            postDataParams.put("fileList", name);
+            postDataParams.put("fileName", name);
         } catch (Exception e) {
             e.printStackTrace();
         }
