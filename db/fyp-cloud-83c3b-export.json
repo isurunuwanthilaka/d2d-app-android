@@ -1,26 +1,20 @@
 {
   "News": {
-    "newsid1": {
-      "description": "Test description",
+    "-LviygfSoypiEghbOzdb": {
+      "description": "First Pairing",
+      "device1ID": "QaA6FrpGZKariA7xFAdcb5rjfXi2",
+      "device1SSID": "Isuru Nuwanthilaka",
+      "device2ID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+      "device2SSID": "Lochana Chathura",
+      "fileName": "undefined",
       "priority": 1,
-      "title": "Test tiltle",
-      "device1ID": "cymNEiaplQOfcIOJZtFc598YaMh2",
-      "device1SSID": "Isuru Nuwanthilaka",
-      "device2ID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
-      "device2SSID": "Isuru Nuwanthilaka",
-      "fileName": "file001"
-    },
-    "newsid2": {
-      "description": "Test description 2",
-      "priority": 2,
-      "title": "Test tiltle 2",
-      "device1ID": "cymNEiaplQOfcIOJZtFc598YaMh2",
-      "device1SSID": "Isuru Nuwanthilaka",
-      "device2ID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
-      "device2SSID": "Isuru Madhuranga"
+      "title": "Test pairing"
     }
   },
-
+  "TEST_FILE_STORE": {
+    "deviceID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+    "fileList": "[Test2.jpg, Test3.jpg, Test1.jpg, Test4.jpg, 1575609351482.jpg, 1575609538536.jpg, 1575609858345.jpg, 1575964201980.jpg]"
+  },
   "User" : {
     "3uoH6tcrDbbDOYt7RoDY5cM3Bq43" : {
       "age" : 0,
@@ -53,20 +47,31 @@
     }
   },
   "deviceDataStore" : {
+    "QaA6FrpGZKariA7xFAdcb5rjfXi2": {
+      "batteryLevel": "22",
+      "connRSSI": "73",
+      "deviceID": "QaA6FrpGZKariA7xFAdcb5rjfXi2",
+      "deviceSSIDName": "Xperia XA1",
+      "linkSpeed": "81"
+    },
     "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83" : {
-      "batteryLevel" : "81",
-      "connRSSI" : "67",
+      "batteryLevel": "100",
+      "connRSSI": "74",
       "deviceID" : "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+      "deviceSSIDName": "Isuru Nuwanthilaka ",
       "linkSpeed" : "72"
     }
   },
   "fileStoreDetails": {
-    "file001": {
-      "fileName": "fileOne",
-      "availableDeviceIDs": ["nmRvoJeiC6ZvzRQ1LRh7KqBzQj83","cymNEiaplQOfcIOJZtFc598YaMh2"],
+    "TestFile": {
       "URL": "",
-      "size": "23 MB",
-      "format": "JPEG"
+      "availableDeviceIDs": [
+        "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+        "cymNEiaplQOfcIOJZtFc598YaMh2"
+      ],
+      "fileName": "fileOne",
+      "format": "JPEG",
+      "size": "23 MB"
     }
   }
 }
