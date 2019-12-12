@@ -32,6 +32,7 @@ public class CloudFileScreen extends Fragment {
     FirebaseAuth mAuth;
     DatabaseReference ref;
 
+    public static boolean hasRequested = false;
 
     void getFilesFromCloud() {
         //authenticating firebase database
@@ -75,6 +76,7 @@ public class CloudFileScreen extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View v, int position,
                                     long arg3) {
+                hasRequested=!hasRequested;
                 String name = arg0.getItemAtPosition(position).toString();
                 Toast.makeText(getContext().getApplicationContext(), "Requesting " + name + ". Wait until pairing.", Toast.LENGTH_LONG).show();
                 requestFileFromCloud(name);
@@ -95,7 +97,7 @@ public class CloudFileScreen extends Fragment {
         JSONObject postDataParams = new JSONObject();
         try {
             postDataParams.put("deviceID", userUID);
-            postDataParams.put("fileList", name);
+            postDataParams.put("fileName", name);
         } catch (Exception e) {
             e.printStackTrace();
         }
