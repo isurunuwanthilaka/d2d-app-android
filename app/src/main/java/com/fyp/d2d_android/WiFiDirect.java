@@ -11,19 +11,16 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.StrictMode;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,10 +41,12 @@ import java.util.List;
 
 public class WiFiDirect extends AppCompatActivity {
 
-    Button btnOnOff, btnDiscover, btnSend;
+    private static ClientTask clientTask;
+    private static ServerTask serverTask;
+
+    Button btnOnOff, btnDiscover;
     ListView listView;
     TextView read_msg_box, connectionStatus;
-    EditText writeMsg;
     private Toolbar toolbar;
 
     WifiManager wifiManager;
@@ -61,13 +60,8 @@ public class WiFiDirect extends AppCompatActivity {
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
 
-    static final int MESSAGE_READ=1;
-
-    ServerClass serverClass;
-    ClientClass clientClass;
-    SendReceive sendReceive;
-
     String paringSSID;
+    String mySSID;
     String fileName;
     public static boolean transactionDone=false;
 
@@ -80,6 +74,7 @@ public class WiFiDirect extends AppCompatActivity {
 
         if (extras != null) {
             paringSSID = extras.getString("pairingSSID");
+            mySSID=extras.getString("mySSID");
             fileName = extras.getString("fileName");
         }
 
@@ -87,31 +82,11 @@ public class WiFiDirect extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
 
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         setContentView(R.layout.activity_wifidirect);
-        // TODO: Change thread policy to default
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
         initialWork();
         exqListener();
     }
 
-    Handler handler=new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what)
-            {
-                case MESSAGE_READ:
-                    byte[] readBuff= (byte[]) msg.obj;
-                    String tempMsg=new String(readBuff,0,msg.arg1);
-                    read_msg_box.setText(tempMsg);
-                    break;
-            }
-            return true;
-        }
-    });
 
     private void exqListener() {
         btnOnOff.setOnClickListener(new View.OnClickListener() {
@@ -152,14 +127,6 @@ public class WiFiDirect extends AppCompatActivity {
             }
         });
 
-//        btnSend.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String msg=writeMsg.getText().toString();
-//                sendReceive.write(msg.getBytes());
-//            }
-//        });
-
         //automate WiFi enabling and discovery
         if(!wifiManager.isWifiEnabled()){
             btnOnOff.callOnClick();
@@ -170,11 +137,9 @@ public class WiFiDirect extends AppCompatActivity {
     private void initialWork() {
         btnOnOff=(Button) findViewById(R.id.onOff);
         btnDiscover=(Button) findViewById(R.id.discover);
-//        btnSend=(Button) findViewById(R.id.sendButton);
         listView=(ListView) findViewById(R.id.peerListView);
         read_msg_box=(TextView) findViewById(R.id.readMsg);
         connectionStatus=(TextView) findViewById(R.id.connectionStatus);
-//        writeMsg=(EditText) findViewById(R.id.writeMsg);
 
         wifiManager= (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -241,14 +206,14 @@ public class WiFiDirect extends AppCompatActivity {
             if(wifiP2pInfo.groupFormed && CloudFileScreen.hasRequested)
             {
                 connectionStatus.setText("Client");
-                clientClass=new ClientClass(groupOwnerAddress,getApplicationContext());
-                clientClass.start();
+                WiFiDirect.clientTask=new ClientTask();
+                WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext());
 
             }else if(wifiP2pInfo.groupFormed)
             {
                 connectionStatus.setText("Host");
-                serverClass=new ServerClass(getApplicationContext());
-                serverClass.start();
+                WiFiDirect.serverTask=new ServerTask();
+                WiFiDirect.serverTask.execute(getApplicationContext());
             }
         }
     };
@@ -265,16 +230,36 @@ public class WiFiDirect extends AppCompatActivity {
         unregisterReceiver(mReceiver);
     }
 
-    public class ServerClass extends Thread{
+    class ClientTask extends AsyncTask<Object, Void,Void> {
+        Socket socket;
+        String hostAdd;
+        Context context;
+
+        @Override
+        protected Void doInBackground(Object... objects) {
+            socket= new Socket();
+            hostAdd=((InetAddress)objects[0]).getHostAddress();
+            context = (Context) objects[1];
+            try {
+                socket.connect(new InetSocketAddress(hostAdd,8888),500);
+                receiveFile(socket);
+                CloudFileScreen.hasRequested=false;
+//                sendReceive=new SendReceive(socket);
+//                sendReceive.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    class ServerTask extends AsyncTask<Object, String,String> {
         Socket socket;
         ServerSocket serverSocket;
-
         Context context;
-        public ServerClass(Context context){
-            this.context=context;
-        }
         @Override
-        public void run() {
+        protected String doInBackground(Object... objects) {
+            context = (Context) objects[0];
             try {
                 serverSocket=new ServerSocket(8888);
                 socket=serverSocket.accept();
@@ -285,78 +270,7 @@ public class WiFiDirect extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private class SendReceive extends Thread{
-        private Socket socket;
-        private InputStream inputStream;
-        private OutputStream outputStream;
-
-        public SendReceive(Socket skt)
-        {
-            socket=skt;
-            try {
-                inputStream=socket.getInputStream();
-                outputStream=socket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void run() {
-            byte[] buffer=new byte[1024];
-            int bytes;
-
-            while (socket!=null)
-            {
-                try {
-                    bytes=inputStream.read(buffer);
-                    if(bytes>0)
-                    {
-                        handler.obtainMessage(MESSAGE_READ,bytes,-1,buffer).sendToTarget();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public void write(byte[] bytes)
-        {
-            try {
-                outputStream.write(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public class ClientClass extends Thread{
-        Socket socket;
-        String hostAdd;
-
-        Context context;
-
-        public  ClientClass(InetAddress hostAddress, Context context)
-        {
-            hostAdd=hostAddress.getHostAddress();
-            socket=new Socket();
-            this.context=context;
-        }
-
-        @Override
-        public void run() {
-            try {
-                socket.connect(new InetSocketAddress(hostAdd,8888),500);
-                receiveFile(socket);
-                CloudFileScreen.hasRequested=false;
-//                sendReceive=new SendReceive(socket);
-//                sendReceive.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return null;
         }
     }
 
@@ -448,4 +362,4 @@ public class WiFiDirect extends AppCompatActivity {
         throw new IOException("Device not found");
     }
 
-}
+    }
