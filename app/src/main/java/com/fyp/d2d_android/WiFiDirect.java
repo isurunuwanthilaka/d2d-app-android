@@ -67,9 +67,21 @@ public class WiFiDirect extends AppCompatActivity {
     ClientClass clientClass;
     SendReceive sendReceive;
 
+    String paringSSID;
+    String fileName;
+    public static boolean transactionDone=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Get intent data from previous activity
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            paringSSID = extras.getString("pairingSSID");
+            fileName = extras.getString("fileName");
+        }
 
         //adding toolbar
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -140,13 +152,13 @@ public class WiFiDirect extends AppCompatActivity {
             }
         });
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String msg=writeMsg.getText().toString();
-                sendReceive.write(msg.getBytes());
-            }
-        });
+//        btnSend.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String msg=writeMsg.getText().toString();
+//                sendReceive.write(msg.getBytes());
+//            }
+//        });
 
         //automate WiFi enabling and discovery
         if(!wifiManager.isWifiEnabled()){
@@ -158,11 +170,11 @@ public class WiFiDirect extends AppCompatActivity {
     private void initialWork() {
         btnOnOff=(Button) findViewById(R.id.onOff);
         btnDiscover=(Button) findViewById(R.id.discover);
-        btnSend=(Button) findViewById(R.id.sendButton);
+//        btnSend=(Button) findViewById(R.id.sendButton);
         listView=(ListView) findViewById(R.id.peerListView);
         read_msg_box=(TextView) findViewById(R.id.readMsg);
         connectionStatus=(TextView) findViewById(R.id.connectionStatus);
-        writeMsg=(EditText) findViewById(R.id.writeMsg);
+//        writeMsg=(EditText) findViewById(R.id.writeMsg);
 
         wifiManager= (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -193,6 +205,7 @@ public class WiFiDirect extends AppCompatActivity {
                 for(WifiP2pDevice device : peerList.getDeviceList())
                 {
                     deviceNameArray[index]=device.deviceName;
+                    //System.out.println("\""+tem+"\"");
                     deviceArray[index]=device;
                     index++;
                 }
@@ -205,6 +218,16 @@ public class WiFiDirect extends AppCompatActivity {
             {
                 Toast.makeText(getApplicationContext(),"No Device Found",Toast.LENGTH_SHORT).show();
                 return;
+            }else {
+                if (!transactionDone && CloudFileScreen.hasRequested){
+                    try {
+                        WifiP2pDevice device=fetchSecondDevice(deviceArray,paringSSID);
+                        transactionDone=true;
+                        connectTo(device);
+                    }catch (IOException e){
+                        Toast.makeText(getApplicationContext(),"2nd Device Not Found",Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         }
     };
@@ -214,16 +237,18 @@ public class WiFiDirect extends AppCompatActivity {
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             final InetAddress groupOwnerAddress=wifiP2pInfo.groupOwnerAddress;
 
-            if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
-            {
-                connectionStatus.setText("Host");
-                serverClass=new ServerClass(getApplicationContext());
-                serverClass.start();
-            }else if(wifiP2pInfo.groupFormed)
+//            if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
+            if(wifiP2pInfo.groupFormed && CloudFileScreen.hasRequested)
             {
                 connectionStatus.setText("Client");
                 clientClass=new ClientClass(groupOwnerAddress,getApplicationContext());
                 clientClass.start();
+
+            }else if(wifiP2pInfo.groupFormed)
+            {
+                connectionStatus.setText("Host");
+                serverClass=new ServerClass(getApplicationContext());
+                serverClass.start();
             }
         }
     };
@@ -253,9 +278,8 @@ public class WiFiDirect extends AppCompatActivity {
             try {
                 serverSocket=new ServerSocket(8888);
                 socket=serverSocket.accept();
-                receiveFile(socket);
+                sendFile(socket,context,fileName);
                 serverSocket.close();
-//                Toast.makeText(context.getApplicationContext(),"File transfer done",Toast.LENGTH_LONG).show();
 //                sendReceive=new SendReceive(socket);
 //                sendReceive.start();
             } catch (IOException e) {
@@ -326,8 +350,8 @@ public class WiFiDirect extends AppCompatActivity {
         public void run() {
             try {
                 socket.connect(new InetSocketAddress(hostAdd,8888),500);
-                sendFile(socket,context);
-//                Toast.makeText(getApplicationContext(),"File transfer done",Toast.LENGTH_LONG).show();
+                receiveFile(socket);
+                CloudFileScreen.hasRequested=false;
 //                sendReceive=new SendReceive(socket);
 //                sendReceive.start();
             } catch (IOException e) {
@@ -353,7 +377,7 @@ public class WiFiDirect extends AppCompatActivity {
         return true;
     }
 
-    public static boolean sendFile(Socket socket, Context context){
+    public static boolean sendFile(Socket socket, Context context, String fileName){
         int len;
         byte buf[]  = new byte[1024];
 
@@ -361,9 +385,9 @@ public class WiFiDirect extends AppCompatActivity {
             OutputStream outputStream = socket.getOutputStream();
             ContentResolver cr = context.getContentResolver();
             InputStream inputStream = null;
-            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/D2D/hey.pdf")));
+            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/D2D/"+fileName+".jpg")));
             if (inputStream == null) {
-                throw new FileNotFoundException("can't open input stream: "+"Environment.getExternalStorageDirectory()+\"/D2D/Picture1.jpg\"" );
+                throw new FileNotFoundException("can't open input stream: "+"Environment.getExternalStorageDirectory()+\"/D2D/\""+fileName);
             }
             while ((len = inputStream.read(buf)) != -1) {
                 outputStream.write(buf, 0, len);
@@ -380,7 +404,7 @@ public class WiFiDirect extends AppCompatActivity {
         try {
             final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
                     + "/" + System.currentTimeMillis()
-                    + ".pdf");
+                    + ".jpg");
 
             File dirs = new File(f.getParent());
             if (!dirs.exists())
