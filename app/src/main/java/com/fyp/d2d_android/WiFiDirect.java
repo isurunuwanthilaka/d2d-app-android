@@ -202,18 +202,25 @@ public class WiFiDirect extends AppCompatActivity {
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             final InetAddress groupOwnerAddress=wifiP2pInfo.groupOwnerAddress;
 
-//            if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
             if(wifiP2pInfo.groupFormed && CloudFileScreen.hasRequested)
             {
                 connectionStatus.setText("Client");
                 WiFiDirect.clientTask=new ClientTask();
-                WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext());
+                if (wifiP2pInfo.isGroupOwner){
+                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                }else {
+                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                }
 
             }else if(wifiP2pInfo.groupFormed)
             {
                 connectionStatus.setText("Host");
                 WiFiDirect.serverTask=new ServerTask();
-                WiFiDirect.serverTask.execute(getApplicationContext());
+                if (wifiP2pInfo.isGroupOwner){
+                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                }else{
+                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                }
             }
         }
     };
@@ -232,44 +239,78 @@ public class WiFiDirect extends AppCompatActivity {
 
     class ClientTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
+        ServerSocket serverSocket;
         String hostAdd;
         Context context;
+        int ownership;
 
         @Override
         protected Void doInBackground(Object... objects) {
             socket= new Socket();
             hostAdd=((InetAddress)objects[0]).getHostAddress();
             context = (Context) objects[1];
-            try {
-                socket.connect(new InetSocketAddress(hostAdd,8888),500);
-                receiveFile(socket);
-                CloudFileScreen.hasRequested=false;
-//                sendReceive=new SendReceive(socket);
-//                sendReceive.start();
-            } catch (IOException e) {
-                e.printStackTrace();
+            ownership = (int) objects[2];
+            switch (ownership){
+                case 1:
+                    try {
+                        serverSocket=new ServerSocket(8888);
+                        socket=serverSocket.accept();
+                        receiveFile(socket);
+                        serverSocket.close();
+                        CloudFileScreen.hasRequested=false;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 2:
+                    try {
+                        socket.connect(new InetSocketAddress(hostAdd,8888),500);
+                        receiveFile(socket);
+                        CloudFileScreen.hasRequested=false;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
+
             return null;
         }
     }
 
-    class ServerTask extends AsyncTask<Object, String,String> {
+    class ServerTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
         ServerSocket serverSocket;
+        String hostAdd;
         Context context;
+        int ownership;
+
         @Override
-        protected String doInBackground(Object... objects) {
-            context = (Context) objects[0];
-            try {
-                serverSocket=new ServerSocket(8888);
-                socket=serverSocket.accept();
-                sendFile(socket,context,fileName);
-                serverSocket.close();
-//                sendReceive=new SendReceive(socket);
-//                sendReceive.start();
-            } catch (IOException e) {
-                e.printStackTrace();
+        protected Void doInBackground(Object... objects) {
+            socket= new Socket();
+            hostAdd=((InetAddress)objects[0]).getHostAddress();
+            context = (Context) objects[1];
+            ownership = (int) objects[2];
+            switch (ownership){
+                case 1:
+                    try {
+                        serverSocket=new ServerSocket(8888);
+                        socket=serverSocket.accept();
+                        sendFile(socket,context,fileName);
+                        serverSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 2:
+                    try {
+                        socket.connect(new InetSocketAddress(hostAdd,8888),500);
+                        sendFile(socket,context,fileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
+
             return null;
         }
     }
