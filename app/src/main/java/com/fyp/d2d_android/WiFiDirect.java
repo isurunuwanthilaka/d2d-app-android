@@ -12,11 +12,8 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
-import android.os.Environment;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
-
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,6 +22,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,26 +64,21 @@ public class WiFiDirect extends AppCompatActivity {
     String fileName;
     public static boolean transactionDone=false;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+        byte[] buf = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                out.write(buf, 0, len);
 
-        //Get intent data from previous activity
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null) {
-            paringSSID = extras.getString("pairingSSID");
-            mySSID=extras.getString("mySSID");
-            fileName = extras.getString("fileName");
+            }
+            out.close();
+            inputStream.close();
+        } catch (IOException e) {
+//            Log.d("inside copyFile", e.toString());
+            return false;
         }
-
-        //adding toolbar
-        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
-
-        setContentView(R.layout.activity_wifidirect);
-        initialWork();
-        exqListener();
+        return true;
     }
 
 
@@ -134,25 +128,27 @@ public class WiFiDirect extends AppCompatActivity {
         btnDiscover.callOnClick();
     }
 
-    private void initialWork() {
-        btnOnOff=(Button) findViewById(R.id.onOff);
-        btnDiscover=(Button) findViewById(R.id.discover);
-        listView=(ListView) findViewById(R.id.peerListView);
-        read_msg_box=(TextView) findViewById(R.id.readMsg);
-        connectionStatus=(TextView) findViewById(R.id.connectionStatus);
+    public static boolean sendFile(Socket socket, Context context, String fileName) {
+        int len;
+        byte[] buf = new byte[1024];
 
-        wifiManager= (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        mManager= (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel=mManager.initialize(this,getMainLooper(),null);
-
-        mReceiver=new WiFiDirectBroadcastReceiver(mManager, mChannel,this);
-
-        mIntentFilter=new IntentFilter();
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        try {
+            OutputStream outputStream = socket.getOutputStream();
+            ContentResolver cr = context.getContentResolver();
+            InputStream inputStream = null;
+            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/D2D/" + fileName + ".jpg")));
+            if (inputStream == null) {
+                throw new FileNotFoundException("can't open input stream: " + "Environment.getExternalStorageDirectory()+\"/D2D/\"" + fileName);
+            }
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     WifiP2pManager.PeerListListener peerListListener=new WifiP2pManager.PeerListListener() {
@@ -315,44 +311,46 @@ public class WiFiDirect extends AppCompatActivity {
         }
     }
 
-    public static boolean copyFile(InputStream inputStream, OutputStream out) {
-        byte buf[] = new byte[1024];
-        int len;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-                out.write(buf, 0, len);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-            }
-            out.close();
-            inputStream.close();
-        } catch (IOException e) {
-//            Log.d("inside copyFile", e.toString());
-            return false;
+        //Get intent data from previous activity
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            paringSSID = extras.getString("pairingSSID");
+            mySSID = extras.getString("mySSID");
+            fileName = extras.getString("fileName");
         }
-        return true;
+
+        //adding toolbar
+        toolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
+        setContentView(R.layout.activity_wifidirect);
+        initialWork();
+        exqListener();
     }
 
-    public static boolean sendFile(Socket socket, Context context, String fileName){
-        int len;
-        byte buf[]  = new byte[1024];
+    private void initialWork() {
+        btnOnOff = findViewById(R.id.onOff);
+        btnDiscover = findViewById(R.id.discover);
+        listView = findViewById(R.id.peerListView);
+        connectionStatus = findViewById(R.id.connectionStatus);
 
-        try {
-            OutputStream outputStream = socket.getOutputStream();
-            ContentResolver cr = context.getContentResolver();
-            InputStream inputStream = null;
-            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/D2D/"+fileName+".jpg")));
-            if (inputStream == null) {
-                throw new FileNotFoundException("can't open input stream: "+"Environment.getExternalStorageDirectory()+\"/D2D/\""+fileName);
-            }
-            while ((len = inputStream.read(buf)) != -1) {
-                outputStream.write(buf, 0, len);
-            }
-            outputStream.close();
-            inputStream.close();
-        }catch (IOException e){
-            return false;
-        }
-        return true;
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        mChannel = mManager.initialize(this, getMainLooper(), null);
+
+        mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this);
+
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
     }
 
     public static boolean receiveFile(Socket socket){
