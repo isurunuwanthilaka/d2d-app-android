@@ -42,12 +42,12 @@ import java.util.List;
 
 public class WiFiDirect extends AppCompatActivity {
 
-    private static ClientTask clientTask;
-    private static ServerTask serverTask;
+    private static ReceiveTask receiveTask;
+    private static SendTask sendTask;
 
     Button btnOnOff, btnDiscover;
     ListView listView;
-    TextView read_msg_box, connectionStatus;
+    TextView connectionStatus;
     private Toolbar toolbar;
 
     WifiManager wifiManager;
@@ -209,21 +209,21 @@ public class WiFiDirect extends AppCompatActivity {
             if(wifiP2pInfo.groupFormed && CloudFileScreen.hasRequested)
             {
                 connectionStatus.setText("Client");
-                WiFiDirect.clientTask=new ClientTask();
+                WiFiDirect.receiveTask=new ReceiveTask(getApplicationContext());
                 if (wifiP2pInfo.isGroupOwner){
-                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                    WiFiDirect.receiveTask.execute(groupOwnerAddress,getApplicationContext(),1);
                 }else {
-                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                    WiFiDirect.receiveTask.execute(groupOwnerAddress,getApplicationContext(),2);
                 }
 
             }else if(wifiP2pInfo.groupFormed)
             {
                 connectionStatus.setText("Host");
-                WiFiDirect.serverTask=new ServerTask();
+                WiFiDirect.sendTask=new SendTask(getApplicationContext());
                 if (wifiP2pInfo.isGroupOwner){
-                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                    WiFiDirect.sendTask.execute(groupOwnerAddress,getApplicationContext(),1);
                 }else{
-                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                    WiFiDirect.sendTask.execute(groupOwnerAddress,getApplicationContext(),2);
                 }
             }
         }
@@ -241,12 +241,18 @@ public class WiFiDirect extends AppCompatActivity {
         unregisterReceiver(mReceiver);
     }
 
-    class ClientTask extends AsyncTask<Object, Void,Void> {
+    class ReceiveTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
         ServerSocket serverSocket;
         String hostAdd;
         Context context;
         int ownership;
+
+        public ReceiveTask(Context context){
+            mContext = context;
+            //Get the notification manager
+            mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        }
 
         @Override
         protected Void doInBackground(Object... objects) {
@@ -281,12 +287,18 @@ public class WiFiDirect extends AppCompatActivity {
         }
     }
 
-    class ServerTask extends AsyncTask<Object, Void,Void> {
+    class SendTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
         ServerSocket serverSocket;
         String hostAdd;
         Context context;
         int ownership;
+
+        public SendTask(Context context){
+            mContext = context;
+            //Get the notification manager
+            mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        }
 
         @Override
         protected Void doInBackground(Object... objects) {
