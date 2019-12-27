@@ -255,6 +255,24 @@ public class WiFiDirect extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            createNotification("TestFile.jpg","File download initiated",android.R.drawable.stat_sys_download);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            createNotification("TestFile.jpg","File download successful",android.R.drawable.stat_sys_download_done);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            createNotification("TestFile.jpg","File download in progress",android.R.drawable.stat_sys_download);
+        }
+
+        @Override
         protected Void doInBackground(Object... objects) {
             socket= new Socket();
             hostAdd=((InetAddress)objects[0]).getHostAddress();
@@ -298,6 +316,24 @@ public class WiFiDirect extends AppCompatActivity {
             mContext = context;
             //Get the notification manager
             mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            createNotification("TestFile.jpg","File upload initiated",android.R.drawable.stat_sys_upload);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            createNotification("TestFile.jpg","File upload successful",android.R.drawable.stat_sys_upload_done);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            createNotification("TestFile.jpg","File upload in progress",android.R.drawable.stat_sys_upload);
         }
 
         @Override
@@ -422,11 +458,11 @@ public class WiFiDirect extends AppCompatActivity {
         throw new IOException("Device not found");
     }
 
-    private void createNotification(String contentTitle, String contentText) {
+    private void createNotification(String contentTitle, String contentText, int icon) {
 
         //Build the notification using Notification.Builder
         Notification.Builder builder = new Notification.Builder(mContext)
-                .setSmallIcon(android.R.drawable.btn_star_big_on)
+                .setSmallIcon(icon)
                 .setAutoCancel(true)
                 .setContentTitle(contentTitle)
                 .setContentText(contentText);
