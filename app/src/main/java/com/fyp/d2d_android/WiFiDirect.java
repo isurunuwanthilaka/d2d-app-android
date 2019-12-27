@@ -1,5 +1,7 @@
 package com.fyp.d2d_android;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -63,6 +65,12 @@ public class WiFiDirect extends AppCompatActivity {
     String mySSID;
     String fileName;
     public static boolean transactionDone=false;
+
+    //for notification handling
+    private Context mContext;
+    private int NOTIFICATION_ID = 1;
+    private Notification mNotification;
+    private NotificationManager mNotificationManager;
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         byte[] buf = new byte[1024];
@@ -402,4 +410,19 @@ public class WiFiDirect extends AppCompatActivity {
         throw new IOException("Device not found");
     }
 
+    private void createNotification(String contentTitle, String contentText) {
+
+        //Build the notification using Notification.Builder
+        Notification.Builder builder = new Notification.Builder(mContext)
+                .setSmallIcon(android.R.drawable.btn_star_big_on)
+                .setAutoCancel(true)
+                .setContentTitle(contentTitle)
+                .setContentText(contentText);
+
+        //Get current notification
+        mNotification = builder.getNotification();
+
+        //Show the notification
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+    }
     }
