@@ -1,12 +1,22 @@
 package com.fyp.d2d_android;
 
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -106,5 +116,37 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(result);
+            if (jsonObject.getInt("download") == 1) {
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference gsReference = storage.getReferenceFromUrl(jsonObject.getString("URL"));
+                final long TEN_MEGABYTE = 10 * 1024 * 1024;
+                gsReference.getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        try {
+                            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/D2D", "fileFromCloud.jpg");
+                            if (!file.exists()) {
+                                file.createNewFile();
+                            }
+                            FileOutputStream fos = new FileOutputStream(file);
+                            fos.write(bytes);
+                            fos.close();
+                        } catch (Exception e) {
+                            Log.e("onPostExecute", e.getStackTrace().toString());
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
     }
 }

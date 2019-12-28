@@ -78,6 +78,7 @@ public class NetworkScreen extends Fragment {
             NetworkInfo networkInfo = arg1.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                 DisplayWifiState();
+
             }
         }
     };
@@ -98,6 +99,8 @@ public class NetworkScreen extends Fragment {
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(myRssiChangeReceiver);
+        //getActivity().unregisterReceiver(myWifiReceiver);
+        //getActivity().unregisterReceiver(mBatInfoReceiver);
 
     }
 
