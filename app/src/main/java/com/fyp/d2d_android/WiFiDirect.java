@@ -11,23 +11,19 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
-
-import android.os.StrictMode;
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,10 +40,12 @@ import java.util.List;
 
 public class WiFiDirect extends AppCompatActivity {
 
-    Button btnOnOff, btnDiscover, btnSend;
+    private static ClientTask clientTask;
+    private static ServerTask serverTask;
+
+    Button btnOnOff, btnDiscover;
     ListView listView;
     TextView read_msg_box, connectionStatus;
-    EditText writeMsg;
     private Toolbar toolbar;
 
     WifiManager wifiManager;
@@ -61,45 +59,28 @@ public class WiFiDirect extends AppCompatActivity {
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
 
-    static final int MESSAGE_READ=1;
+    String paringSSID;
+    String mySSID;
+    String fileName;
+    public static boolean transactionDone=false;
 
-    ServerClass serverClass;
-    ClientClass clientClass;
-    SendReceive sendReceive;
+    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+        byte[] buf = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                out.write(buf, 0, len);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        //adding toolbar
-        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
-
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        setContentView(R.layout.activity_wifidirect);
-        // TODO: Change thread policy to default
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        initialWork();
-        exqListener();
+            }
+            out.close();
+            inputStream.close();
+        } catch (IOException e) {
+//            Log.d("inside copyFile", e.toString());
+            return false;
+        }
+        return true;
     }
 
-    Handler handler=new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what)
-            {
-                case MESSAGE_READ:
-                    byte[] readBuff= (byte[]) msg.obj;
-                    String tempMsg=new String(readBuff,0,msg.arg1);
-                    read_msg_box.setText(tempMsg);
-                    break;
-            }
-            return true;
-        }
-    });
 
     private void exqListener() {
         btnOnOff.setOnClickListener(new View.OnClickListener() {
@@ -136,54 +117,38 @@ public class WiFiDirect extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final WifiP2pDevice device=deviceArray[i];
-                WifiP2pConfig config=new WifiP2pConfig();
-                config.deviceAddress=device.deviceAddress;
-
-                mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(getApplicationContext(),"Connected to "+device.deviceName,Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(int i) {
-                        Toast.makeText(getApplicationContext(),"Not Connected",Toast.LENGTH_SHORT).show();
-                    }
-                });
+                connectTo(deviceArray[i]);
             }
         });
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String msg=writeMsg.getText().toString();
-                sendReceive.write(msg.getBytes());
-            }
-        });
+        //automate WiFi enabling and discovery
+        if(!wifiManager.isWifiEnabled()){
+            btnOnOff.callOnClick();
+        }
+        btnDiscover.callOnClick();
     }
 
-    private void initialWork() {
-        btnOnOff=(Button) findViewById(R.id.onOff);
-        btnDiscover=(Button) findViewById(R.id.discover);
-        btnSend=(Button) findViewById(R.id.sendButton);
-        listView=(ListView) findViewById(R.id.peerListView);
-        read_msg_box=(TextView) findViewById(R.id.readMsg);
-        connectionStatus=(TextView) findViewById(R.id.connectionStatus);
-        writeMsg=(EditText) findViewById(R.id.writeMsg);
+    public static boolean sendFile(Socket socket, Context context, String fileName) {
+        int len;
+        byte[] buf = new byte[1024];
 
-        wifiManager= (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        mManager= (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel=mManager.initialize(this,getMainLooper(),null);
-
-        mReceiver=new WiFiDirectBroadcastReceiver(mManager, mChannel,this);
-
-        mIntentFilter=new IntentFilter();
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        try {
+            OutputStream outputStream = socket.getOutputStream();
+            ContentResolver cr = context.getContentResolver();
+            InputStream inputStream = null;
+            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/D2D/" + fileName + ".jpg")));
+            if (inputStream == null) {
+                throw new FileNotFoundException("can't open input stream: " + "Environment.getExternalStorageDirectory()+\"/D2D/\"" + fileName);
+            }
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     WifiP2pManager.PeerListListener peerListListener=new WifiP2pManager.PeerListListener() {
@@ -201,6 +166,7 @@ public class WiFiDirect extends AppCompatActivity {
                 for(WifiP2pDevice device : peerList.getDeviceList())
                 {
                     deviceNameArray[index]=device.deviceName;
+                    //System.out.println("\""+tem+"\"");
                     deviceArray[index]=device;
                     index++;
                 }
@@ -213,6 +179,16 @@ public class WiFiDirect extends AppCompatActivity {
             {
                 Toast.makeText(getApplicationContext(),"No Device Found",Toast.LENGTH_SHORT).show();
                 return;
+            }else {
+                if (!transactionDone && CloudFileScreen.hasRequested){
+                    try {
+                        WifiP2pDevice device=fetchSecondDevice(deviceArray,paringSSID);
+                        transactionDone=true;
+                        connectTo(device);
+                    }catch (IOException e){
+                        Toast.makeText(getApplicationContext(),"2nd Device Not Found",Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         }
     };
@@ -222,16 +198,25 @@ public class WiFiDirect extends AppCompatActivity {
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             final InetAddress groupOwnerAddress=wifiP2pInfo.groupOwnerAddress;
 
-            if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
-            {
-                connectionStatus.setText("Host");
-                serverClass=new ServerClass(getApplicationContext());
-                serverClass.start();
-            }else if(wifiP2pInfo.groupFormed)
+            if(wifiP2pInfo.groupFormed && CloudFileScreen.hasRequested)
             {
                 connectionStatus.setText("Client");
-                clientClass=new ClientClass(groupOwnerAddress,getApplicationContext());
-                clientClass.start();
+                WiFiDirect.clientTask=new ClientTask();
+                if (wifiP2pInfo.isGroupOwner){
+                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                }else {
+                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                }
+
+            }else if(wifiP2pInfo.groupFormed)
+            {
+                connectionStatus.setText("Host");
+                WiFiDirect.serverTask=new ServerTask();
+                if (wifiP2pInfo.isGroupOwner){
+                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                }else{
+                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                }
             }
         }
     };
@@ -248,147 +233,132 @@ public class WiFiDirect extends AppCompatActivity {
         unregisterReceiver(mReceiver);
     }
 
-    public class ServerClass extends Thread{
+    class ClientTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
         ServerSocket serverSocket;
-
-        Context context;
-        public ServerClass(Context context){
-            this.context=context;
-        }
-        @Override
-        public void run() {
-            try {
-                serverSocket=new ServerSocket(8888);
-                socket=serverSocket.accept();
-                receiveFile(socket);
-                serverSocket.close();
-//                Toast.makeText(context.getApplicationContext(),"File transfer done",Toast.LENGTH_LONG).show();
-//                sendReceive=new SendReceive(socket);
-//                sendReceive.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private class SendReceive extends Thread{
-        private Socket socket;
-        private InputStream inputStream;
-        private OutputStream outputStream;
-
-        public SendReceive(Socket skt)
-        {
-            socket=skt;
-            try {
-                inputStream=socket.getInputStream();
-                outputStream=socket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void run() {
-            byte[] buffer=new byte[1024];
-            int bytes;
-
-            while (socket!=null)
-            {
-                try {
-                    bytes=inputStream.read(buffer);
-                    if(bytes>0)
-                    {
-                        handler.obtainMessage(MESSAGE_READ,bytes,-1,buffer).sendToTarget();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public void write(byte[] bytes)
-        {
-            try {
-                outputStream.write(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public class ClientClass extends Thread{
-        Socket socket;
         String hostAdd;
-
         Context context;
-
-        public  ClientClass(InetAddress hostAddress, Context context)
-        {
-            hostAdd=hostAddress.getHostAddress();
-            socket=new Socket();
-            this.context=context;
-        }
+        int ownership;
 
         @Override
-        public void run() {
-            try {
-                socket.connect(new InetSocketAddress(hostAdd,8888),500);
-                sendFile(socket,context);
-//                Toast.makeText(getApplicationContext(),"File transfer done",Toast.LENGTH_LONG).show();
-//                sendReceive=new SendReceive(socket);
-//                sendReceive.start();
-            } catch (IOException e) {
-                e.printStackTrace();
+        protected Void doInBackground(Object... objects) {
+            socket= new Socket();
+            hostAdd=((InetAddress)objects[0]).getHostAddress();
+            context = (Context) objects[1];
+            ownership = (int) objects[2];
+            switch (ownership){
+                case 1:
+                    try {
+                        serverSocket=new ServerSocket(8888);
+                        socket=serverSocket.accept();
+                        receiveFile(socket,fileName);
+                        serverSocket.close();
+                        CloudFileScreen.hasRequested=false;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 2:
+                    try {
+                        socket.connect(new InetSocketAddress(hostAdd,8888),500);
+                        receiveFile(socket,fileName);
+                        CloudFileScreen.hasRequested=false;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
+
+            return null;
         }
     }
 
-    public static boolean copyFile(InputStream inputStream, OutputStream out) {
-        byte buf[] = new byte[1024];
-        int len;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-                out.write(buf, 0, len);
+    class ServerTask extends AsyncTask<Object, Void,Void> {
+        Socket socket;
+        ServerSocket serverSocket;
+        String hostAdd;
+        Context context;
+        int ownership;
 
+        @Override
+        protected Void doInBackground(Object... objects) {
+            socket= new Socket();
+            hostAdd=((InetAddress)objects[0]).getHostAddress();
+            context = (Context) objects[1];
+            ownership = (int) objects[2];
+            switch (ownership){
+                case 1:
+                    try {
+                        serverSocket=new ServerSocket(8888);
+                        socket=serverSocket.accept();
+                        sendFile(socket,context,fileName);
+                        serverSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 2:
+                    try {
+                        socket.connect(new InetSocketAddress(hostAdd,8888),500);
+                        sendFile(socket,context,fileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
-            out.close();
-            inputStream.close();
-        } catch (IOException e) {
-//            Log.d("inside copyFile", e.toString());
-            return false;
+
+            return null;
         }
-        return true;
     }
 
-    public static boolean sendFile(Socket socket, Context context){
-        int len;
-        byte buf[]  = new byte[1024];
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        try {
-            OutputStream outputStream = socket.getOutputStream();
-            ContentResolver cr = context.getContentResolver();
-            InputStream inputStream = null;
-            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/D2D/hey.pdf")));
-            if (inputStream == null) {
-                throw new FileNotFoundException("can't open input stream: "+"Environment.getExternalStorageDirectory()+\"/D2D/Picture1.jpg\"" );
-            }
-            while ((len = inputStream.read(buf)) != -1) {
-                outputStream.write(buf, 0, len);
-            }
-            outputStream.close();
-            inputStream.close();
-        }catch (IOException e){
-            return false;
+        //Get intent data from previous activity
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            paringSSID = extras.getString("pairingSSID");
+            mySSID = extras.getString("mySSID");
+            fileName = extras.getString("fileName");
         }
-        return true;
+
+        //adding toolbar
+        toolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
+        setContentView(R.layout.activity_wifidirect);
+        initialWork();
+        exqListener();
     }
 
-    public static boolean receiveFile(Socket socket){
+    private void initialWork() {
+        btnOnOff = findViewById(R.id.onOff);
+        btnDiscover = findViewById(R.id.discover);
+        listView = findViewById(R.id.peerListView);
+        connectionStatus = findViewById(R.id.connectionStatus);
+
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        mChannel = mManager.initialize(this, getMainLooper(), null);
+
+        mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this);
+
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+    }
+
+    public static boolean receiveFile(Socket socket,String fileName){
+        String[] name_arr=fileName.split("\\.",2);
         try {
             final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
                     + "/" + System.currentTimeMillis()
-                    + ".pdf");
+                    +"."+ name_arr[name_arr.length-1]);
 
             File dirs = new File(f.getParent());
             if (!dirs.exists())
@@ -403,4 +373,33 @@ public class WiFiDirect extends AppCompatActivity {
         return true;
 
     }
-}
+
+    public void connectTo(WifiP2pDevice d){
+        final WifiP2pDevice device=d;
+        WifiP2pConfig config=new WifiP2pConfig();
+        config.deviceAddress=device.deviceAddress;
+
+        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(getApplicationContext(),"Connected to "+device.deviceName,Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int i) {
+                Toast.makeText(getApplicationContext(),"Not Connected",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static WifiP2pDevice fetchSecondDevice(WifiP2pDevice[] arr,String name) throws IOException{
+
+        for (WifiP2pDevice d:arr){
+            if(d.deviceName.equalsIgnoreCase(name)){
+                return d;
+            }
+        }
+        throw new IOException("Device not found");
+    }
+
+    }

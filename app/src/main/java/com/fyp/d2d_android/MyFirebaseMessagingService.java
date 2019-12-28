@@ -54,10 +54,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             if (dataMap.get("device1ID").equals(currentUser.getUid())) {
                 i.putExtra("pairingSSID", dataMap.get("device2SSID"));
+                i.putExtra("mySSID", dataMap.get("device1SSID"));
                 this.startActivity(i);
                 Log.d(TAG,"Device One matched "+dataMap.get("device2SSID"));
             }else if(dataMap.get("device2ID").equals(currentUser.getUid())){
                 i.putExtra("pairingSSID", dataMap.get("device1SSID"));
+                i.putExtra("mySSID", dataMap.get("device2SSID"));
                 Log.d(TAG,"Device Two matched "+dataMap.get("device1SSID"));
                 this.startActivity(i);
             }
