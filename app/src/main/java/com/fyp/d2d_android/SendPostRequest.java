@@ -119,16 +119,15 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
         JSONObject jsonObject = null;
         try {
             jsonObject = new JSONObject(result);
-            if (jsonObject.getInt("downloadState") == 1) {
+            if (jsonObject.getInt("download") == 1) {
                 FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference gsReference = storage.getReferenceFromUrl(jsonObject.getString("url"));
-
+                StorageReference gsReference = storage.getReferenceFromUrl(jsonObject.getString("URL"));
                 final long TEN_MEGABYTE = 10 * 1024 * 1024;
                 gsReference.getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
                     public void onSuccess(byte[] bytes) {
                         try {
-                            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/D2D", "testfile123.jpg");
+                            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/D2D", "fileFromCloud.jpg");
                             if (!file.exists()) {
                                 file.createNewFile();
                             }
@@ -136,6 +135,7 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
                             fos.write(bytes);
                             fos.close();
                         } catch (Exception e) {
+                            Log.e("onPostExecute", e.getStackTrace().toString());
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
