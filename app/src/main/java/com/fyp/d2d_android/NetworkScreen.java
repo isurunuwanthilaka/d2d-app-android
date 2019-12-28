@@ -31,7 +31,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONObject;
 
-import static android.content.Context.CONNECTIVITY_SERVICE;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class NetworkScreen extends Fragment {
@@ -163,9 +162,9 @@ public class NetworkScreen extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        String msg = getString(R.string.msg_subscribed);
+                        String msg = "Successfully subscribed";
                         if (!task.isSuccessful()) {
-                            msg = getString(R.string.msg_subscribe_failed);
+                            msg = "Failed Subscription";
                         }
                         Log.d(TAG, msg);
                     }
@@ -195,7 +194,7 @@ public class NetworkScreen extends Fragment {
 
     private void DisplayWifiState(){
 
-        ConnectivityManager myConnManager = (ConnectivityManager) getActivity().getSystemService(CONNECTIVITY_SERVICE);
+        ConnectivityManager myConnManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo myNetworkInfo = myConnManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         WifiManager myWifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
         myWifiManager.startScan();
