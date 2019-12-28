@@ -251,7 +251,7 @@ public class WiFiDirect extends AppCompatActivity {
                     try {
                         serverSocket=new ServerSocket(8888);
                         socket=serverSocket.accept();
-                        receiveFile(socket);
+                        receiveFile(socket,fileName);
                         serverSocket.close();
                         CloudFileScreen.hasRequested=false;
                     } catch (IOException e) {
@@ -261,7 +261,7 @@ public class WiFiDirect extends AppCompatActivity {
                 case 2:
                     try {
                         socket.connect(new InetSocketAddress(hostAdd,8888),500);
-                        receiveFile(socket);
+                        receiveFile(socket,fileName);
                         CloudFileScreen.hasRequested=false;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -353,11 +353,12 @@ public class WiFiDirect extends AppCompatActivity {
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
     }
 
-    public static boolean receiveFile(Socket socket){
+    public static boolean receiveFile(Socket socket,String fileName){
+        String[] name_arr=fileName.split("\\.",2);
         try {
             final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
                     + "/" + System.currentTimeMillis()
-                    + ".jpg");
+                    +"."+ name_arr[name_arr.length-1]);
 
             File dirs = new File(f.getParent());
             if (!dirs.exists())
