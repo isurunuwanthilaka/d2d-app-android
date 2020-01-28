@@ -1,5 +1,7 @@
 package com.fyp.d2d_android;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -40,12 +42,12 @@ import java.util.List;
 
 public class WiFiDirect extends AppCompatActivity {
 
-    private static ClientTask clientTask;
-    private static ServerTask serverTask;
+    private static ReceiveTask receiveTask;
+    private static SendTask sendTask;
 
     Button btnOnOff, btnDiscover;
     ListView listView;
-    TextView read_msg_box, connectionStatus;
+    TextView connectionStatus;
     private Toolbar toolbar;
 
     WifiManager wifiManager;
@@ -63,6 +65,12 @@ public class WiFiDirect extends AppCompatActivity {
     String mySSID;
     String fileName;
     public static boolean transactionDone=false;
+
+    //for notification handling
+    private Context mContext;
+    private int NOTIFICATION_ID = 1;
+    private Notification mNotification;
+    private NotificationManager mNotificationManager;
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         byte[] buf = new byte[1024];
@@ -201,21 +209,21 @@ public class WiFiDirect extends AppCompatActivity {
             if(wifiP2pInfo.groupFormed && CloudFileScreen.hasRequested)
             {
                 connectionStatus.setText("Client");
-                WiFiDirect.clientTask=new ClientTask();
+                WiFiDirect.receiveTask=new ReceiveTask(getApplicationContext());
                 if (wifiP2pInfo.isGroupOwner){
-                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                    WiFiDirect.receiveTask.execute(groupOwnerAddress,getApplicationContext(),1);
                 }else {
-                    WiFiDirect.clientTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                    WiFiDirect.receiveTask.execute(groupOwnerAddress,getApplicationContext(),2);
                 }
 
             }else if(wifiP2pInfo.groupFormed)
             {
                 connectionStatus.setText("Host");
-                WiFiDirect.serverTask=new ServerTask();
+                WiFiDirect.sendTask=new SendTask(getApplicationContext());
                 if (wifiP2pInfo.isGroupOwner){
-                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),1);
+                    WiFiDirect.sendTask.execute(groupOwnerAddress,getApplicationContext(),1);
                 }else{
-                    WiFiDirect.serverTask.execute(groupOwnerAddress,getApplicationContext(),2);
+                    WiFiDirect.sendTask.execute(groupOwnerAddress,getApplicationContext(),2);
                 }
             }
         }
@@ -233,12 +241,36 @@ public class WiFiDirect extends AppCompatActivity {
         unregisterReceiver(mReceiver);
     }
 
-    class ClientTask extends AsyncTask<Object, Void,Void> {
+    class ReceiveTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
         ServerSocket serverSocket;
         String hostAdd;
         Context context;
         int ownership;
+
+        public ReceiveTask(Context context){
+            mContext = context;
+            //Get the notification manager
+            mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            createNotification("TestFile.jpg","File download initiated",android.R.drawable.stat_sys_download);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            createNotification("TestFile.jpg","File download successful",android.R.drawable.stat_sys_download_done);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            createNotification("TestFile.jpg","File download in progress",android.R.drawable.stat_sys_download);
+        }
 
         @Override
         protected Void doInBackground(Object... objects) {
@@ -273,12 +305,36 @@ public class WiFiDirect extends AppCompatActivity {
         }
     }
 
-    class ServerTask extends AsyncTask<Object, Void,Void> {
+    class SendTask extends AsyncTask<Object, Void,Void> {
         Socket socket;
         ServerSocket serverSocket;
         String hostAdd;
         Context context;
         int ownership;
+
+        public SendTask(Context context){
+            mContext = context;
+            //Get the notification manager
+            mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            createNotification("TestFile.jpg","File upload initiated",android.R.drawable.stat_sys_upload);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            createNotification("TestFile.jpg","File upload successful",android.R.drawable.stat_sys_upload_done);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            createNotification("TestFile.jpg","File upload in progress",android.R.drawable.stat_sys_upload);
+        }
 
         @Override
         protected Void doInBackground(Object... objects) {
@@ -402,4 +458,19 @@ public class WiFiDirect extends AppCompatActivity {
         throw new IOException("Device not found");
     }
 
+    private void createNotification(String contentTitle, String contentText, int icon) {
+
+        //Build the notification using Notification.Builder
+        Notification.Builder builder = new Notification.Builder(mContext)
+                .setSmallIcon(icon)
+                .setAutoCancel(true)
+                .setContentTitle(contentTitle)
+                .setContentText(contentText);
+
+        //Get current notification
+        mNotification = builder.getNotification();
+
+        //Show the notification
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+    }
     }
