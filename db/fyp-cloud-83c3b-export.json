@@ -1,77 +1,53 @@
 {
-  "News": {
-    "-LviygfSoypiEghbOzdb": {
-      "description": "First Pairing",
-      "device1ID": "QaA6FrpGZKariA7xFAdcb5rjfXi2",
-      "device1SSID": "Isuru Nuwanthilaka",
-      "device2ID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
-      "device2SSID": "Lochana Chathura",
-      "fileName": "undefined",
-      "priority": 1,
-      "title": "Test pairing"
+  "News" : {
+    "-Lzg1B_FHzA9c5QSf8bV" : {
+      "description" : "Test description",
+      "device1ID" : "QaA6FrpGZKariA7xFAdcb5rjfXi2",
+      "device1SSID" : "G3112",
+      "device2ID" : "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
+      "device2SSID" : "[Phone] Isuru Nuwanthilaka ",
+      "fileName" : "TestFile.jpg",
+      "priority" : 1,
+      "title" : "Test tiltle"
     }
   },
-  "TEST_FILE_STORE": {
-    "deviceID": "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
-    "fileList": "[Test2.jpg, Test3.jpg, Test1.jpg, Test4.jpg, 1575609351482.jpg, 1575609538536.jpg, 1575609858345.jpg, 1575964201980.jpg]"
-  },
   "User" : {
-    "3uoH6tcrDbbDOYt7RoDY5cM3Bq43" : {
-      "age" : 0,
-      "firstName" : "default",
-      "lastName" : "default"
-    },
-    "cymNEiaplQOfcIOJZtFc598YaMh2" : {
-      "firstName" : "Isuru",
-      "lastName" : "Nuwanthilaka"
+    "QaA6FrpGZKariA7xFAdcb5rjfXi2" : {
+      "firstName" : "Dileepa",
+      "lastName" : "S"
     },
     "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83" : {
       "age" : 0,
       "firstName" : "Isuru",
       "lastName" : "Nuwanthilaka"
-    },
-    "om8d5AxWuSVuXvsrVaLKPywfica2" : {
-      "age" : 0,
-      "firstName" : "default",
-      "lastName" : "default"
-    },
-    "u8214yGvEjftxdzzYlPkxsCuzKv1" : {
-      "age" : 0,
-      "firstName" : "default",
-      "lastName" : "default"
-    },
-    "vPKI6XhM5sasELVh1wmLxYhWaSI2" : {
-      "age" : 0,
-      "firstName" : "default",
-      "lastName" : "default"
     }
   },
   "deviceDataStore" : {
-    "QaA6FrpGZKariA7xFAdcb5rjfXi2": {
-      "batteryLevel": "22",
-      "connRSSI": "73",
-      "deviceID": "QaA6FrpGZKariA7xFAdcb5rjfXi2",
-      "deviceSSIDName": "Xperia XA1",
-      "linkSpeed": "81"
+    "QaA6FrpGZKariA7xFAdcb5rjfXi2" : {
+      "batteryLevel" : "41",
+      "connRSSI" : "34",
+      "deviceID" : "QaA6FrpGZKariA7xFAdcb5rjfXi2",
+      "deviceSSIDName" : "Xperia XA1",
+      "linkSpeed" : "65"
     },
     "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83" : {
-      "batteryLevel": "100",
-      "connRSSI": "74",
+      "batteryLevel" : "15",
+      "connRSSI" : "50",
       "deviceID" : "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
-      "deviceSSIDName": "Isuru Nuwanthilaka ",
+      "deviceSSIDName" : "Isuru Nuwanthilaka ",
       "linkSpeed" : "72"
     }
   },
-  "fileStoreDetails": {
-    "TestFile": {
-      "URL": "",
-      "availableDeviceIDs": [
-        "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83",
-        "cymNEiaplQOfcIOJZtFc598YaMh2"
-      ],
-      "fileName": "fileOne",
-      "format": "JPEG",
-      "size": "23 MB"
+  "fileStoreDetails" : {
+    "TestFile" : {
+      "URL" : "gs://fyp-cloud-83c3b.appspot.com/TestFile.jpg",
+      "availableDeviceIDs" : {
+        "QaA6FrpGZKariA7xFAdcb5rjfXi2" : "QaA6FrpGZKariA7xFAdcb5rjfXi2",
+        "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83" : "nmRvoJeiC6ZvzRQ1LRh7KqBzQj83"
+      },
+      "fileName" : "TestFile.jpg",
+      "format" : "image/jpeg",
+      "size" : "5.82 KB"
     }
   }
 }

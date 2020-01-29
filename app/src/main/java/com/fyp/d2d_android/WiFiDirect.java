@@ -144,7 +144,7 @@ public class WiFiDirect extends AppCompatActivity {
             OutputStream outputStream = socket.getOutputStream();
             ContentResolver cr = context.getContentResolver();
             InputStream inputStream = null;
-            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/D2D/" + fileName + ".jpg")));
+            inputStream = cr.openInputStream(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/D2D/" + fileName)));
             if (inputStream == null) {
                 throw new FileNotFoundException("can't open input stream: " + "Environment.getExternalStorageDirectory()+\"/D2D/\"" + fileName);
             }
