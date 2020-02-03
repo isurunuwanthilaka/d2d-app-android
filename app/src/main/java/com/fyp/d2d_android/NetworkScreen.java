@@ -155,10 +155,10 @@ public class NetworkScreen extends Fragment {
                 }
                 dataHolder.setJson(postDataParams);
                 new SendPostRequest().execute(dataHolder);
-                handler.postDelayed(this, 60000);
+                handler.postDelayed(this, 10000);
             }
         };
-        handler.postDelayed(r, 60000);
+        handler.postDelayed(r, 10000);
 
         //firebase messaging setting up
         FirebaseMessaging.getInstance().subscribeToTopic("News")
@@ -239,6 +239,5 @@ public class NetworkScreen extends Fragment {
             textSpeed.setText("---");
             textRssi.setText("---");
         }
-
     }
 }
