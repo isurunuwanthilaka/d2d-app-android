@@ -24,7 +24,7 @@ We are focusing on following features
 
 Following is the proposed system architecture for working with our application. Raise an issue if you have any Q's.
 
-![alt System-Architecture](./img/system-architecture.jpeg)
+![alt System-Architecture](./img/api-architecture.png)
 
 ## Documentation
 
@@ -38,7 +38,7 @@ Following is the proposed system architecture for working with our application. 
 
 ## Authors
 
-Isuru Nuwnathilaka
+Isuru Nuwanthilaka
 
 Lochana Chathura
 
