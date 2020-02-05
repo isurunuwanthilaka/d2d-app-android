@@ -26,6 +26,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";
     Map<String, String> dataMap;
 
+    //flag for handling the msg overloading
+    public static int msgFlag;
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
@@ -52,15 +55,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Intent i = new Intent(this, WiFiDirect.class);
             i.putExtra("fileName", dataMap.get("fileName"));
 
-            if (dataMap.get("device1ID").equals(currentUser.getUid())) {
+            if (dataMap.get("device1ID").equals(currentUser.getUid()) && (msgFlag == 0)) {
                 i.putExtra("pairingSSID", dataMap.get("device2SSID"));
                 i.putExtra("mySSID", dataMap.get("device1SSID"));
+                msgFlag = 1;
                 this.startActivity(i);
-                Log.d(TAG,"Device One matched "+dataMap.get("device2SSID"));
-            }else if(dataMap.get("device2ID").equals(currentUser.getUid())){
+                Log.d(TAG, "Device One matched " + dataMap.get("device2SSID"));
+            } else if (dataMap.get("device2ID").equals(currentUser.getUid()) && (msgFlag == 0)) {
                 i.putExtra("pairingSSID", dataMap.get("device1SSID"));
                 i.putExtra("mySSID", dataMap.get("device2SSID"));
-                Log.d(TAG,"Device Two matched "+dataMap.get("device1SSID"));
+                Log.d(TAG, "Device Two matched " + dataMap.get("device1SSID"));
+                msgFlag = 1;
                 this.startActivity(i);
             }
         }

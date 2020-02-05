@@ -7,10 +7,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.widget.Toast;
 
-/**
- * Created by lenovo on 21-02-2018.
- */
-
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
