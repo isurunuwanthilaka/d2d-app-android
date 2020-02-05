@@ -40,6 +40,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fyp.d2d_android.MyFirebaseMessagingService.msgFlag;
+
 public class WiFiDirect extends AppCompatActivity {
 
     private static ReceiveTask receiveTask;
@@ -264,6 +266,7 @@ public class WiFiDirect extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             createNotification("TestFile.jpg","File download successful",android.R.drawable.stat_sys_download_done);
+            msgFlag = 0;
         }
 
         @Override
@@ -328,6 +331,7 @@ public class WiFiDirect extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             createNotification("TestFile.jpg","File upload successful",android.R.drawable.stat_sys_upload_done);
+            msgFlag = 0;
         }
 
         @Override
