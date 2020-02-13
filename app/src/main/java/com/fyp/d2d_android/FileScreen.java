@@ -54,10 +54,10 @@ public class FileScreen extends Fragment {
         View view = inflater.inflate(R.layout.fragment_file_screen, container, false);
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
         ListDir(root);
-        ListView listView = view.findViewById(R.id.listView);
+        ListView listView = view.findViewById(R.id.listViewFile);
         // Set selection mode to multiple choices
         listView.setChoiceMode(2);
-        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_checked, fileList);
+        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, fileList);
         listView.setAdapter(listViewAdapter);
         // Set all items checked
         for (int i=0;i<fileList.size();i++){
@@ -74,7 +74,8 @@ public class FileScreen extends Fragment {
             public void run() {
 
                 DataHolder dataHolder = new DataHolder();
-                dataHolder.setUrl("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connFileUpdate");
+                //https://us-central1-fyp-test-db.cloudfunctions.net/connFileUpdate
+                dataHolder.setUrl("https://us-central1-fyp-test-db.cloudfunctions.net/connFileUpdate");
                 JSONObject postDataParams = new JSONObject();
                 try {
                     postDataParams.put("deviceID", userUID);

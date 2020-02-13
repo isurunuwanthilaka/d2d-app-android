@@ -61,13 +61,13 @@ public class CloudFileScreen extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator +"D2D");
-        View view = inflater.inflate(R.layout.fragment_file_screen, container, false);
+        View view = inflater.inflate(R.layout.fragment_cloud_screen, container, false);
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
         getFilesFromCloud();
-        ListView listView = view.findViewById(R.id.listView);
+        ListView listView = view.findViewById(R.id.listViewCloud);
         // Set selection mode to multiple choices
         listView.setChoiceMode(2);
-        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_checked, fileList);
+        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, fileList);
         listView.setAdapter(listViewAdapter);
         // Set all items checked
         for (int i=0;i<fileList.size();i++){
@@ -94,7 +94,8 @@ public class CloudFileScreen extends Fragment {
         final String userUID = currentUser.getUid();
 
         DataHolder dataHolder = new DataHolder();
-        dataHolder.setUrl("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connFileRequest");
+        //https://us-central1-fyp-test-db.cloudfunctions.net/connFileRequest
+        dataHolder.setUrl("https://us-central1-fyp-test-db.cloudfunctions.net/connFileRequest");
         JSONObject postDataParams = new JSONObject();
         try {
             postDataParams.put("deviceID", userUID);
