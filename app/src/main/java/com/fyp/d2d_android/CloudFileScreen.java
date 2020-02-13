@@ -94,7 +94,8 @@ public class CloudFileScreen extends Fragment {
         final String userUID = currentUser.getUid();
 
         DataHolder dataHolder = new DataHolder();
-        dataHolder.setUrl("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connFileRequest");
+        //https://us-central1-fyp-test-db.cloudfunctions.net/connFileRequest
+        dataHolder.setUrl("https://us-central1-fyp-test-db.cloudfunctions.net/connFileRequest");
         JSONObject postDataParams = new JSONObject();
         try {
             postDataParams.put("deviceID", userUID);

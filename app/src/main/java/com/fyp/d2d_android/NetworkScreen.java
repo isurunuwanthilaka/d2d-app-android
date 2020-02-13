@@ -142,23 +142,24 @@ public class NetworkScreen extends Fragment {
             public void run() {
 
                 DataHolder dataHolder = new DataHolder();
-                dataHolder.setUrl("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connData");
+                //https://us-central1-fyp-test-db.cloudfunctions.net/connData
+                dataHolder.setUrl("https://us-central1-fyp-test-db.cloudfunctions.net/connData");
                 JSONObject postDataParams = new JSONObject();
                 try {
                     postDataParams.put("deviceID", userUID);
                     postDataParams.put("linkSpeed", String.valueOf(Integer.parseInt(textSpeed.getText().toString().replaceAll("\\D", ""))));
                     postDataParams.put("connRSSI", String.valueOf(Integer.parseInt(textRssi.getText().toString().replaceAll("\\D", ""))));
                     postDataParams.put("batteryLevel", String.valueOf(Integer.parseInt(batteryTxt.getText().toString().replaceAll("\\D", ""))));
-                    postDataParams.put("deviceSSIDName", userSSID);
+                    //postDataParams.put("deviceSSIDName", userSSID);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 dataHolder.setJson(postDataParams);
                 new SendPostRequest().execute(dataHolder);
-                handler.postDelayed(this, 60000);
+                handler.postDelayed(this, 10000);
             }
         };
-        handler.postDelayed(r, 60000);
+        handler.postDelayed(r, 5000);
 
         //firebase messaging setting up
         FirebaseMessaging.getInstance().subscribeToTopic("News")

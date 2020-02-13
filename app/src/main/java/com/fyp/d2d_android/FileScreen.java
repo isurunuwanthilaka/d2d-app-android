@@ -74,7 +74,8 @@ public class FileScreen extends Fragment {
             public void run() {
 
                 DataHolder dataHolder = new DataHolder();
-                dataHolder.setUrl("https://us-central1-fyp-cloud-83c3b.cloudfunctions.net/connFileUpdate");
+                //https://us-central1-fyp-test-db.cloudfunctions.net/connFileUpdate
+                dataHolder.setUrl("https://us-central1-fyp-test-db.cloudfunctions.net/connFileUpdate");
                 JSONObject postDataParams = new JSONObject();
                 try {
                     postDataParams.put("deviceID", userUID);
