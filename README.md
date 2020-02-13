@@ -12,6 +12,10 @@ We are focusing on following features
 
 * Wifi Direct - D2D communication link
 
+* Network detail extractions
+
+* Use of REST APIs 
+
 * Firebase Authentication
 
 * Firebase Realtime Database
@@ -20,13 +24,28 @@ We are focusing on following features
 
 * Firebase Messaging for invoking paired client applications
 
+* Firebase Storage Buckets
+
 ## System Architecture
 
 Following is the proposed system architecture for working with our application. Raise an issue if you have any Q's.
 
 ![alt System-Architecture](./img/api-architecture.png)
 
-## Documentation
+## Screens
+
+![alt Image00](./img/img_0.png)
+
+![alt Image01](./img/img_1.png)
+
+![alt Image02](./img/img_2.png)
+
+![alt Image03](./img/img_3.png)
+
+![alt Image04](./img/img_4.png)
+
+![alt Image05](./img/img_5.png)
+
 
 # How to set up environment?
 
@@ -35,6 +54,8 @@ Following is the proposed system architecture for working with our application. 
 2. Add google-services.json (existing file is invalidated after the first phase) file downloaded from the firebase project.
 
 3. Build using Gradle tool.
+
+4. Remember to update API URLs with yours for testing 
 
 ## Authors
 
