@@ -120,14 +120,17 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
         try {
             jsonObject = new JSONObject(result);
             if (jsonObject.getInt("download") == 1) {
+                Log.d("Download", "triggered for downloading ");
+                Log.d("Download", jsonObject.getString("URL"));
                 FirebaseStorage storage = FirebaseStorage.getInstance();
+                final String FileName = jsonObject.getString("fileName");
                 StorageReference gsReference = storage.getReferenceFromUrl(jsonObject.getString("URL"));
                 final long TEN_MEGABYTE = 10 * 1024 * 1024;
                 gsReference.getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
                     public void onSuccess(byte[] bytes) {
                         try {
-                            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/D2D", "fileFromCloud.jpg");
+                            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/D2D", FileName);
                             if (!file.exists()) {
                                 file.createNewFile();
                             }

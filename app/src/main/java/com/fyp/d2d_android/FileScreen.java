@@ -85,10 +85,10 @@ public class FileScreen extends Fragment {
                 }
                 dataHolder.setJson(postDataParams);
                 new SendPostRequest().execute(dataHolder);
-                handler.postDelayed(this, 90000);
+                handler.postDelayed(this, 30000);
             }
         };
-        handler.postDelayed(r, 90000);
+        handler.postDelayed(r, 30000);
         //end API call
         return view;
     }
