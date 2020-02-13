@@ -77,7 +77,7 @@ public class CloudFileScreen extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View v, int position,
                                     long arg3) {
-                hasRequested=!hasRequested;
+                hasRequested=true;
                 String name = arg0.getItemAtPosition(position).toString();
                 Toast.makeText(getContext().getApplicationContext(), "Requesting " + name + ". Wait until pairing.", Toast.LENGTH_LONG).show();
                 requestFileFromCloud(name);
