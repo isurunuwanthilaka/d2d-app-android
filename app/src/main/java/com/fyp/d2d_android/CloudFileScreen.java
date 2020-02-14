@@ -104,7 +104,7 @@ public class CloudFileScreen extends Fragment {
             e.printStackTrace();
         }
         dataHolder.setJson(postDataParams);
-        new SendPostRequest().execute(dataHolder);
+        new SendPostRequest(getContext(),true).execute(dataHolder);
         Log.d("CloudFileRequest","Send me file!");
     }
 }

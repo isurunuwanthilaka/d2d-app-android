@@ -1,5 +1,8 @@
 package com.fyp.d2d_android;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -31,6 +34,23 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
 
+    //for notification handling
+    private Context mContext;
+    private int NOTIFICATION_ID = 1;
+    private Notification mNotification;
+    private NotificationManager mNotificationManager;
+    private boolean isCloud;
+
+    public SendPostRequest(Context mContext,boolean isCloud) {
+        this.mContext = mContext;
+        this.isCloud=isCloud;
+        //Get the notification manager
+        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+    public SendPostRequest(boolean isCloud) {
+        this.isCloud=isCloud;
+    }
+
     public String getPostDataString(JSONObject params) throws Exception {
 
         StringBuilder result = new StringBuilder();
@@ -56,9 +76,21 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
         return result.toString();
     }
 
+    @Override
     protected void onPreExecute() {
+        super.onPreExecute();
+        if (isCloud){
+            createNotification("File Download","Initiated",android.R.drawable.stat_sys_download);
+        }
     }
 
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+        if (isCloud){
+            createNotification("File Download","In progress",android.R.drawable.stat_sys_download);
+        }
+    }
     protected String doInBackground(DataHolder... arg) {
 
         try {
@@ -147,9 +179,28 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
                         // Handle any errors
                     }
                 });
+                if (isCloud){
+                    createNotification(FileName,"File download successful",android.R.drawable.stat_sys_download_done);
+                }
             }
         } catch (Exception e) {
             e.getStackTrace();
         }
+    }
+
+    private void createNotification(String contentTitle, String contentText, int icon) {
+
+        //Build the notification using Notification.Builder
+        Notification.Builder builder = new Notification.Builder(mContext)
+                .setSmallIcon(icon)
+                .setAutoCancel(true)
+                .setContentTitle(contentTitle)
+                .setContentText(contentText);
+
+        //Get current notification
+        mNotification = builder.getNotification();
+
+        //Show the notification
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
     }
 }
