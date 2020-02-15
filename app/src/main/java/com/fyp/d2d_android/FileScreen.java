@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,6 +26,7 @@ import java.util.List;
 public class FileScreen extends Fragment {
     private File root;
     private ArrayAdapter<String> listViewAdapter;
+    //boolean mUserVisibleHint = true;
     private List<String> fileList = new ArrayList<String>();
     void ListDir(File f) {
         boolean success = false;
@@ -97,7 +99,20 @@ public class FileScreen extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (!getUserVisibleHint()) return;
         ListDir(root);
         listViewAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean visible)
+    {
+        super.setUserVisibleHint(visible);
+        if (visible && isResumed())
+        {
+            //Only manually call onResume if fragment is already visible
+            //Otherwise allow natural fragment lifecycle to call onResume
+            onResume();
+        }
     }
 }
