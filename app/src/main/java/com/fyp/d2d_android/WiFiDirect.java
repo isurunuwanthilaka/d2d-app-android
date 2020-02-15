@@ -416,9 +416,13 @@ public class WiFiDirect extends AppCompatActivity {
     public static boolean receiveFile(Socket socket,String fileName){
         String[] name_arr=fileName.split("\\.",2);
         try {
+            //save file with timestamp
+//            final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
+//                    + "/" + System.currentTimeMillis()
+//                    +"."+ name_arr[name_arr.length-1]);
+            //save file with original name
             final File f = new File(Environment.getExternalStorageDirectory() + "/D2D"
-                    + "/" + System.currentTimeMillis()
-                    +"."+ name_arr[name_arr.length-1]);
+                    + "/" + fileName);
 
             File dirs = new File(f.getParent());
             if (!dirs.exists())
