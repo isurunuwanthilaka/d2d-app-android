@@ -23,7 +23,8 @@ import java.util.List;
 
 
 public class FileScreen extends Fragment {
-
+    private File root;
+    private ArrayAdapter<String> listViewAdapter;
     private List<String> fileList = new ArrayList<String>();
     void ListDir(File f) {
         boolean success = false;
@@ -52,12 +53,12 @@ public class FileScreen extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator +"D2D");
         View view = inflater.inflate(R.layout.fragment_file_screen, container, false);
-        File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
+        root = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/D2D");
         ListDir(root);
         ListView listView = view.findViewById(R.id.listViewFile);
         // Set selection mode to multiple choices
         listView.setChoiceMode(2);
-        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, fileList);
+        listViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, fileList);
         listView.setAdapter(listViewAdapter);
         // Set all items checked
         for (int i=0;i<fileList.size();i++){
@@ -93,4 +94,10 @@ public class FileScreen extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ListDir(root);
+        listViewAdapter.notifyDataSetChanged();
+    }
 }

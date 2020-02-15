@@ -80,7 +80,7 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
     protected void onPreExecute() {
         super.onPreExecute();
         if (isCloud){
-            createNotification("File Download","Initiated",android.R.drawable.stat_sys_download);
+            createNotification("Cloud File Download","Initiated",android.R.drawable.stat_sys_download);
         }
     }
 
@@ -88,7 +88,7 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
         if (isCloud){
-            createNotification("File Download","In progress",android.R.drawable.stat_sys_download);
+            createNotification("Cloud File Download","In progress",android.R.drawable.stat_sys_download);
         }
     }
     protected String doInBackground(DataHolder... arg) {
@@ -180,7 +180,7 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
                     }
                 });
                 if (isCloud){
-                    createNotification(FileName,"File download successful",android.R.drawable.stat_sys_download_done);
+                    createNotification(FileName,"Cloud file download successful",android.R.drawable.stat_sys_download_done);
                 }
             }
         } catch (Exception e) {
