@@ -324,20 +324,20 @@ public class WiFiDirect extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            createNotification("TestFile.jpg","File upload initiated",android.R.drawable.stat_sys_upload);
+            createNotification(fileName,"File upload initiated",android.R.drawable.stat_sys_upload);
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            createNotification("TestFile.jpg","File upload successful",android.R.drawable.stat_sys_upload_done);
+            createNotification(fileName,"File upload successful",android.R.drawable.stat_sys_upload_done);
             msgFlag = 0;
         }
 
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-            createNotification("TestFile.jpg","File upload in progress",android.R.drawable.stat_sys_upload);
+            createNotification(fileName,"File upload in progress",android.R.drawable.stat_sys_upload);
         }
 
         @Override
