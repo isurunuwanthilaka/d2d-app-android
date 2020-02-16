@@ -39,17 +39,13 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
     private int NOTIFICATION_ID = 1;
     private Notification mNotification;
     private NotificationManager mNotificationManager;
-    private boolean isCloud;
 
-    public SendPostRequest(Context mContext,boolean isCloud) {
+    public SendPostRequest(Context mContext) {
         this.mContext = mContext;
-        this.isCloud=isCloud;
         //Get the notification manager
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
     }
-    public SendPostRequest(boolean isCloud) {
-        this.isCloud=isCloud;
-    }
+    public SendPostRequest() { }
 
     public String getPostDataString(JSONObject params) throws Exception {
 
@@ -79,17 +75,11 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if (isCloud){
-            createNotification("Cloud File Download","Initiated",android.R.drawable.stat_sys_download);
-        }
     }
 
     @Override
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
-        if (isCloud){
-            createNotification("Cloud File Download","In progress",android.R.drawable.stat_sys_download);
-        }
     }
     protected String doInBackground(DataHolder... arg) {
 
@@ -179,9 +169,7 @@ public class SendPostRequest extends AsyncTask<DataHolder, Void, String> {
                         // Handle any errors
                     }
                 });
-                if (isCloud){
-                    createNotification(FileName,"Cloud file download successful",android.R.drawable.stat_sys_download_done);
-                }
+                createNotification(FileName,"Cloud file download successful",android.R.drawable.stat_sys_download_done);
             }
         } catch (Exception e) {
             e.getStackTrace();

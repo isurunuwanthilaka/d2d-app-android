@@ -79,7 +79,7 @@ public class CloudFileScreen extends Fragment {
                                     long arg3) {
                 hasRequested=true;
                 String name = arg0.getItemAtPosition(position).toString();
-                Toast.makeText(getContext().getApplicationContext(), "Requesting " + name + ". Wait until pairing.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext().getApplicationContext(), "Requesting " + name , Toast.LENGTH_LONG).show();
                 requestFileFromCloud(name);
             }
         });
@@ -104,7 +104,7 @@ public class CloudFileScreen extends Fragment {
             e.printStackTrace();
         }
         dataHolder.setJson(postDataParams);
-        new SendPostRequest(getContext(),true).execute(dataHolder);
+        new SendPostRequest(getContext()).execute(dataHolder);
         Log.d("CloudFileRequest","Send me file!");
     }
 }

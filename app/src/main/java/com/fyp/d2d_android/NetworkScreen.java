@@ -155,7 +155,7 @@ public class NetworkScreen extends Fragment {
                     e.printStackTrace();
                 }
                 dataHolder.setJson(postDataParams);
-                new SendPostRequest(false).execute(dataHolder);
+                new SendPostRequest().execute(dataHolder);
                 handler.postDelayed(this, 10000);
             }
         };
